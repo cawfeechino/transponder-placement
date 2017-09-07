@@ -12,18 +12,9 @@ public class Gui extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		Button btn = new Button();
-		btn.setText("Hello");
-		btn.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				System.out.println("hello");
-			}
-		});
+		//TODO gui
 		
 		StackPane root = new StackPane();
-		root.getChildren().add(btn);
 		
 		 Scene scene = new Scene(root, 300, 250);
 
