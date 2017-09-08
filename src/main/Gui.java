@@ -2,6 +2,8 @@ package main;
 
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -23,8 +25,26 @@ public class Gui extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		//TODO gui
-		Scene scene = new Scene(new VBox(), 600, 450);
+		//TODO gui maybe add borderPane instead of Vbox as root
+		Scene scene = new Scene(new VBox(), 650, 500);
+		
+		//listener to find the ideal size for the gui
+		scene.widthProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					System.out.println("Width: " + newValue);	
+			}
+			
+		});
+		
+		scene.heightProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				System.out.println("Height: " + newValue);
+			}
+		});
 		
 		GridPane body = new GridPane();
 			body.setVgap(10);
@@ -33,7 +53,7 @@ public class Gui extends Application {
 			
 		MenuBar menu = new MenuBar();
 		
-		//TODO set listeners for menuItems
+		//TODO set listeners/eventHandlers for menuItems
 		Menu menufile = new Menu("File");
 			MenuItem network = new MenuItem("NetWork");
 			MenuItem traffic = new MenuItem("Traffic");
