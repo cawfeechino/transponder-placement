@@ -70,6 +70,11 @@ public class Simulator {
 		return topology;
 	}
 	
+	//returns the total bandwidth used for 1 request (number of hops X traffic)
+	public int getTotalRequestBandwidth(Path path, int traffic) {
+		return path.getNumberOfHops() * traffic;
+	}
+	
 	// ---------------------------------------- MUTATORS ---------------------------------------- // 
 	
 	/**
