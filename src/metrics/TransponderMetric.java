@@ -190,7 +190,9 @@ public class TransponderMetric{
 		System.out.println("********************** done *******************");
 	}
 	
-	public void getResults(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
+	public static void getResults(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
+		String PROJECT_DIRECTORY =  new File(".").getCanonicalPath();
+		String RESULTS_DIRECTORY = "/src/results/";
 		String fileName = "";
 		switch(topology) {
 			case SIMPLE:
