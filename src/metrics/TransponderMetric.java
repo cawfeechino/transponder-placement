@@ -71,7 +71,7 @@ public class TransponderMetric{
 		System.out.println("********************** done *******************");
 	}
 	
-	public void getResultsOld(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
+	public void getResults(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
 		String fileName = "";
 		switch(topology) {
 			case SIMPLE:
@@ -190,7 +190,7 @@ public class TransponderMetric{
 		System.out.println("********************** done *******************");
 	}
 	
-	public static void getResults(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
+	public static void getResultsTest(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold) throws IOException{
 		String PROJECT_DIRECTORY =  new File(".").getCanonicalPath();
 		String RESULTS_DIRECTORY = "/src/results/";
 		String fileName = "";
