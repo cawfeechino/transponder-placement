@@ -19,18 +19,21 @@ public class TransponderMetric{
 	
 	public TransponderMetric()throws IOException{}
 	
-	public void start() throws IOException{;
-		//getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
-		//getResultsNSFNET(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
-		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.RING8,30);
-		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE8,40);
-		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.MESH8,50);
-	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,60);
-	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,70);
-	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,80);
-	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,90);
-	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,110);
-		//getResultsHypercube16(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
+	public void start(NetworkTopology topology, int threshold) throws IOException{;
+		getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
+//		getResultsNSFNET(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.RING8,30);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE8,40);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.MESH8,50);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,60);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,70);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,80);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,90);
+//		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,110);
+//		getResultsHypercube16(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
+		
+		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,topology,threshold);
+
 	}
 	
 	public void getResultsSimple(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method) throws IOException{
@@ -39,7 +42,7 @@ public class TransponderMetric{
 		
 		pw.println("Max_Bandwidth,ODU,OPT,# ODU better than OPT ");
 
-		for(int i = 20; i <= 500; i+=20){
+		for(int i = 20; i <= 60; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			int oduWins = 0;
 			
@@ -139,7 +142,7 @@ public class TransponderMetric{
 			pw.println(i + "," + sum1/1000 + "," + sum2/1000 + "," + sum3/1000 + "," + oduWins);
 		}*/
 		
-		for(int i = 20; i <= 500; i+=20){
+		for(int i = 20; i <= 60; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
 			int sum1 = 0;
@@ -191,6 +194,7 @@ public class TransponderMetric{
 	}
 	
 	public static void main(String args[]) throws IOException{
-		new TransponderMetric().start();
+		
+		new TransponderMetric().start(NetworkTopology.valueOf(args[0]), Integer.parseInt(args[1]));
 	}
 }
