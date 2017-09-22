@@ -20,7 +20,7 @@ public class TransponderMetric{
 	public TransponderMetric()throws IOException{}
 	
 	public void start(NetworkTopology topology, int threshold) throws IOException{;
-		getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
+		//getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
 //		getResultsNSFNET(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
 //		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.RING8,30);
 //		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE8,40);
@@ -142,7 +142,7 @@ public class TransponderMetric{
 			pw.println(i + "," + sum1/1000 + "," + sum2/1000 + "," + sum3/1000 + "," + oduWins);
 		}*/
 		
-		for(int i = 20; i <= 60; i+=20){
+		for(int i = 20; i <= 40; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
 			int sum1 = 0;

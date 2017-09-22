@@ -336,7 +336,7 @@ public class Gui extends Application {
 						}else if(threshold110.isSelected()) {
 							firstRun[1]="110";
 						}
-						
+												
 						if(firstRun[0].equals(NetworkTopology.RING8.name())) {
 							topologyGroup.selectToggle(mRing8);
 						}else if(firstRun[0].equals(NetworkTopology.MESH8.name())) {
@@ -402,19 +402,33 @@ public class Gui extends Application {
 			String path =  new File(".").getCanonicalPath().concat("/src/results/");			
 			File folder = new File(path);
 			File[] csvFiles = folder.listFiles();
- 			
+			
+			File mostRecent = null;
+			
+			if(!(csvFiles.length <=0)) {
+				if(csvFiles.length==1) {
+					mostRecent=csvFiles[0];
+				}else if(csvFiles.length>1) {
+					for(int i =0; i <csvFiles.length-1; i++) {
+						if(csvFiles[i].lastModified() > csvFiles[i+1].lastModified()) {
+							mostRecent = csvFiles[i];
+						}else {
+							mostRecent = csvFiles[i+1];
+						}
+					}
+				}
+			}
+			
+			System.out.println("most recent: "+ mostRecent.lastModified());
+			System.out.println(csvFiles[0].lastModified());
+ 			System.out.println(csvFiles[1].lastModified());
+ 			//System.out.println(csvFiles[2].lastModified());
 			Scanner scanner = new Scanner(csvFiles[0]);
 			while(scanner.hasNext()) {
 				String[] line = scanner.nextLine().split(",");
 				System.out.println(line[0]+' '+line[1]+" "+line[2]);
 			}
-			
-			
-	
-			
-
-				
-				
+					
 	        primaryStage.setTitle("Transponder Placement");
 	        primaryStage.setScene(first);
 	        primaryStage.show();
@@ -424,6 +438,4 @@ public class Gui extends Application {
 		launch(args);
 	}
 	
-	
-
 }
