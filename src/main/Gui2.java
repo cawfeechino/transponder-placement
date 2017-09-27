@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
+
+import com.sun.javafx.geom.Point2D;
 
 import javafx.application.Application;
 import javafx.concurrent.Task;
@@ -20,16 +21,20 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import metrics.TransponderMetric;
 import utilities.NetworkTopology;
@@ -54,6 +59,7 @@ public class Gui2  extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 		//main scene and board
+				String project = new File(".").getCanonicalPath();
 				root = new StackPane();
 				layout = new BorderPane();
 				Scene scene = new Scene(root, 650, 500);	
@@ -98,9 +104,40 @@ public class Gui2  extends Application{
 				ProgressIndicator spinner  = new ProgressIndicator();
 				spinner.setMaxWidth(350);
 				
+				//action event listener for drawing
+				dMesh8.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent event) {
+						// TODO Auto-generated method stub
+						drawMesh8();
+						
+					}
+				});
+				
+				dNsfnet.setOnAction(new EventHandler<ActionEvent>() {
+					//10x 20 y
+					@Override
+					public void handle(ActionEvent event) {
+						
+					}
+				});
+				
+//				Image pic = new Image(getClass().getResourceAsStream("../img/us-map-outline.png"));
+//				ImageView iv = new ImageView(pic);
+//				root.getChildren().add(iv);
+//				Pane nodes = new Pane();
+//				Circle sd = new Circle(75,275,8);
+//				Circle pa = new Circle(30,197,8);
+//				Circle se= new Circle(73,50,8);
+//				//Circle slc = new Circle() 
+//				nodes.getChildren().addAll(sd,pa,se);
+//				layout.setCenter(nodes);
+//			
+				
 				//action event listener for performance topology 
 	
-				String path =  new File(".").getCanonicalPath().concat("/src/results/");	
+				String path =  project.concat("/src/results/");	
 				
 				ring8.setOnAction(new EventHandler<ActionEvent>() {
 					
@@ -243,15 +280,93 @@ public class Gui2  extends Application{
 				
 				
 
-				//readcsvfile(mostRecentFile(new File(path).listFiles()));
+				//test method work before running a topology simulation
+				//readcsvfile(mostRecentFile(new File(path).listFiles()));			
+				
+				
 				
 				layout.setTop(menu);
-				layout.setCenter(body);
 				layout.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE, null, null)));
-						
+					
+				System.out.println(Color.ANTIQUEWHITE.toString());
 		        primaryStage.setTitle("Transponder Placement");
 		        primaryStage.setScene(scene);
 		        primaryStage.show();
+		
+	}
+	
+	
+	//draw mesh8
+	//(x,y) X is top left to right Y is from top left to bottom
+	public void drawMesh8() {
+		
+		Pane draw= new Pane();
+		Point2D mPoint1 = new Point2D(150,150);
+		Point2D mPoint2 = new Point2D(250,50);
+		Point2D mPoint3 = new Point2D(400,50);
+		Point2D mPoint4 = new Point2D(500,150);
+		Point2D mPoint5 = new Point2D(500,250);
+		Point2D mPoint6 = new Point2D(400,350);
+		Point2D mPoint7 = new Point2D(250,350);
+		Point2D mPoint8 = new Point2D(150,250);
+		
+		Circle point1 = new Circle(mPoint1.x,mPoint1.y, 10);
+		Circle point2 = new Circle(mPoint2.x,mPoint2.y,10);
+		Circle point3 = new Circle(mPoint3.x,mPoint3.y,10);
+		Circle point4 = new Circle(mPoint4.x,mPoint4.y,10);
+		Circle point5 = new Circle(mPoint5.x,mPoint5.y,10);
+		Circle point6 = new Circle(mPoint6.x,mPoint6.y,10);
+		Circle point7 = new Circle(mPoint7.x,mPoint7.y,10);
+		Circle point8 = new Circle(mPoint8.x,mPoint8.y,10);
+		
+		
+		
+		//connections for point one mesh8
+		//1st node 
+		Line line1to3 = new Line(mPoint1.x,mPoint1.y,mPoint3.x,mPoint3.y);
+		//line1to3.setStrokeWidth(2.5);
+		Line line1to4 = new Line(mPoint1.x,mPoint1.y, mPoint4.x,mPoint4.y);
+		//line1to4.setStrokeWidth(2.5);
+		Line line1to5 = new Line(mPoint1.x,mPoint1.y, mPoint5.x,mPoint5.y);
+		Line line1to6 = new Line(mPoint1.x,mPoint1.y, mPoint6.x,mPoint6.y);
+		Line line1to8 = new Line(mPoint1.x,mPoint1.y, mPoint8.x,mPoint8.y);
+		
+		//second node
+		Line line2to3= new Line(mPoint2.x,mPoint2.y, mPoint3.x,mPoint3.y);
+		Line line2to4= new Line(mPoint2.x,mPoint2.y, mPoint4.x,mPoint4.y);
+		Line line2to5= new Line(mPoint2.x,mPoint2.y, mPoint5.x,mPoint5.y);
+		Line line2to6= new Line(mPoint2.x,mPoint2.y, mPoint6.x,mPoint6.y);
+		Line line2to8= new Line(mPoint2.x,mPoint2.y, mPoint8.x,mPoint8.y);
+
+		//3rd node
+		Line line3to5 = new Line(mPoint3.x, mPoint3.y, mPoint5.x, mPoint5.y);
+		Line line3to7 = new Line(mPoint3.x, mPoint3.y, mPoint7.x, mPoint7.y);
+		Line line3to8 = new Line(mPoint3.x, mPoint3.y, mPoint8.x, mPoint8.y);
+		
+		//4th
+		Line line4to6 = new Line(mPoint4.x,mPoint4.y,mPoint6.x,mPoint6.y);
+		Line line4to7 = new Line(mPoint4.x,mPoint4.y,mPoint7.x,mPoint7.y);
+		Line line4to8 = new Line(mPoint4.x,mPoint4.y,mPoint8.x,mPoint8.y);
+		
+		//5th
+		Line line5to6 = new Line(mPoint5.x, mPoint5.y, mPoint6.x, mPoint6.y);
+		Line line5to7 = new Line(mPoint5.x, mPoint5.y, mPoint7.x, mPoint7.y);
+		Line line5to8 = new Line(mPoint5.x, mPoint5.y, mPoint8.x, mPoint8.y);
+		
+		//6th
+		Line line6to7 = new Line(mPoint6.x, mPoint6.y, mPoint7.x, mPoint7.y);
+		
+		
+		
+		draw.getChildren().addAll(point1,point2,point3,point4,point5,point6,point7,point8);	
+		draw.getChildren().addAll(line1to3,line1to4,line1to5,line1to6,line1to8);
+		draw.getChildren().addAll(line2to3,line2to4,line2to5,line2to6, line2to8);
+		draw.getChildren().addAll(line3to5,line3to7,line3to8);
+		draw.getChildren().addAll(line4to6,line4to7,line4to8);
+		draw.getChildren().addAll(line5to6,line5to7,line5to8);
+		draw.getChildren().add(line6to7);
+		layout.setCenter(draw);
+		
 		
 	}
 	
