@@ -122,7 +122,7 @@ public class Gui2  extends Application{
 						
 					}
 				});
-				
+//				
 //				Image pic = new Image(getClass().getResourceAsStream("../img/us-map-outline.png"));
 //				ImageView iv = new ImageView(pic);
 //				root.getChildren().add(iv);
@@ -133,7 +133,7 @@ public class Gui2  extends Application{
 //				//Circle slc = new Circle() 
 //				nodes.getChildren().addAll(sd,pa,se);
 //				layout.setCenter(nodes);
-//			
+			
 				
 				//action event listener for performance topology 
 	
@@ -147,9 +147,6 @@ public class Gui2  extends Application{
 						run = new String[2];
 						run[0]=NetworkTopology.RING8.name();
 						run[1]= "30";
-						
-						//Thread main = new Thread(runMain);
-						//main.start();
 						
 						mainTask = backgroundTask(run);
 						backgroundThread= new Thread(mainTask);
