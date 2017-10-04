@@ -9,6 +9,8 @@ import java.util.Scanner;
 import com.sun.javafx.geom.Point2D;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -20,13 +22,16 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -35,6 +40,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import metrics.TransponderMetric;
 import utilities.NetworkTopology;
@@ -48,6 +54,7 @@ public class Gui2  extends Application{
 
 	BorderPane layout;
 	StackPane root;
+	String project;
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -57,19 +64,33 @@ public class Gui2  extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
 		//main scene and board
-				String project = new File(".").getCanonicalPath();
-				root = new StackPane();
+				project = new File(".").getCanonicalPath();
 				layout = new BorderPane();
-				Scene scene = new Scene(root, 650, 500);	
-				GridPane body = new GridPane();
-				MenuBar menu = new MenuBar();	
-					root.getChildren().add(layout);
-					body.setVgap(10);
-					body.setHgap(10);
-					body.setPadding(new Insets(0, 10, 0, 10));
-					
+				root = new StackPane();
+				Scene scene = new Scene(root, 800, 600);	
+				root.getChildren().add(layout);
+				
+				scene.widthProperty().addListener(new ChangeListener<Number>() {
+
+					@Override
+					public void changed(ObservableValue<? extends Number> observable, Number oldValue,
+							Number newValue) {
+						System.out.println("W: " +newValue);
+						
+					}
+				});
+				
+				scene.heightProperty().addListener(new ChangeListener<Number>() {
+
+					@Override
+					public void changed(ObservableValue<? extends Number> observable, Number oldValue,
+							Number newValue) {
+						System.out.println("H: " + newValue);
+					}
+				});
+				
+				MenuBar menu = new MenuBar();
 				Menu menufile = new Menu("File");
 					MenuItem setRequest = new MenuItem("Set Request");
 					Menu topolodyDiagram = new Menu("Topology Diagram");
@@ -103,6 +124,16 @@ public class Gui2  extends Application{
 				
 				ProgressIndicator spinner  = new ProgressIndicator();
 				spinner.setMaxWidth(350);
+				//upload topology 
+				upload.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent event) {
+						FileChooser fileChooser= new FileChooser();
+						fileChooser.setTitle("Topology file");
+						fileChooser.showOpenDialog(primaryStage);
+					}
+				});
 				
 				//action event listener for drawing
 				dMesh8.setOnAction(new EventHandler<ActionEvent>() {
@@ -116,24 +147,11 @@ public class Gui2  extends Application{
 				});
 				
 				dNsfnet.setOnAction(new EventHandler<ActionEvent>() {
-					//10x 20 y
 					@Override
 					public void handle(ActionEvent event) {
-						
+						drawNsfNet();
 					}
-				});
-//				
-//				Image pic = new Image(getClass().getResourceAsStream("../img/us-map-outline.png"));
-//				ImageView iv = new ImageView(pic);
-//				root.getChildren().add(iv);
-//				Pane nodes = new Pane();
-//				Circle sd = new Circle(75,275,8);
-//				Circle pa = new Circle(30,197,8);
-//				Circle se= new Circle(73,50,8);
-//				//Circle slc = new Circle() 
-//				nodes.getChildren().addAll(sd,pa,se);
-//				layout.setCenter(nodes);
-			
+				});						
 				
 				//action event listener for performance topology 
 	
@@ -143,7 +161,7 @@ public class Gui2  extends Application{
 					
 					@Override
 					public void handle(ActionEvent event) {
-						// TODO Auto-generated method stub
+						
 						run = new String[2];
 						run[0]=NetworkTopology.RING8.name();
 						run[1]= "30";
@@ -152,13 +170,12 @@ public class Gui2  extends Application{
 						backgroundThread= new Thread(mainTask);
 						backgroundThread.start();
 						root.getChildren().add(spinner);
-
+						
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
-								// TODO Auto-generated method stub
-								root.getChildren().remove(spinner);
+								
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
@@ -167,8 +184,11 @@ public class Gui2  extends Application{
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
+								root.getChildren().remove(spinner);
 								
 							}
+							
+					
 						});
 		 					
 					}
@@ -192,8 +212,6 @@ public class Gui2  extends Application{
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
-								// TODO Auto-generated method stub
-								root.getChildren().remove(spinner);
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
@@ -202,6 +220,7 @@ public class Gui2  extends Application{
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
+								root.getChildren().remove(spinner);
 							}
 						});
 						
@@ -226,8 +245,6 @@ public class Gui2  extends Application{
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
-								// TODO Auto-generated method stub
-								root.getChildren().remove(spinner);
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
@@ -236,6 +253,7 @@ public class Gui2  extends Application{
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
+								root.getChildren().remove(spinner);
 							}
 						});
 						
@@ -246,7 +264,6 @@ public class Gui2  extends Application{
 					
 					@Override
 					public void handle(ActionEvent event) {
-						// TODO Auto-generated method stub
 						run = new String[2];
 						run[0]=NetworkTopology.HYPERCUBE16.name();
 						run[1]= "30";
@@ -260,8 +277,6 @@ public class Gui2  extends Application{
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
-								// TODO Auto-generated method stub
-								root.getChildren().remove(spinner);
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
@@ -270,6 +285,7 @@ public class Gui2  extends Application{
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
+								root.getChildren().remove(spinner);
 							}
 						});
 					}
@@ -278,14 +294,12 @@ public class Gui2  extends Application{
 				
 
 				//test method work before running a topology simulation
-				//readcsvfile(mostRecentFile(new File(path).listFiles()));			
-				
-				
+//				readcsvfile(mostRecentFile(new File(path).listFiles()));
+				drawNsfNet();
 				
 				layout.setTop(menu);
 				layout.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE, null, null)));
 					
-				System.out.println(Color.ANTIQUEWHITE.toString());
 		        primaryStage.setTitle("Transponder Placement");
 		        primaryStage.setScene(scene);
 		        primaryStage.show();
@@ -367,37 +381,125 @@ public class Gui2  extends Application{
 		
 	}
 	
+	public void drawNsfNet() {
+		StackPane stackPane = new StackPane();	
+		layout.setCenter(stackPane);
+		
+		HBox ivHolder = new HBox();
+		System.out.println(project);
+		Image map = new Image(getClass().getResourceAsStream("usaMap.png"));
+		ImageView iv = new ImageView(map);
+		iv.setBlendMode(BlendMode.MULTIPLY);
+		ivHolder.getChildren().add(iv);
+		ivHolder.setPadding(new Insets(36,0,0,35));
+	
+		Point2D pCal1 = new Point2D(75, 292);
+		Point2D pCal2 = new Point2D(25, 210);
+		Point2D pWa = new Point2D(67, 55);
+		Point2D pUt = new Point2D(148, 190);
+		Point2D pCo = new Point2D(223, 206);
+		Point2D pNe = new Point2D(315, 196);
+		Point2D pTx = new Point2D(350, 350);
+		Point2D pIl = new Point2D(417, 180);
+		Point2D pMi = new Point2D(452, 138);
+		Point2D pGa = new Point2D(490, 285);
+		Point2D pPa = new Point2D(530, 157);
+		Point2D pNy = new Point2D(547, 110);
+		Point2D pDc = new Point2D(550, 186);
+		Point2D pNj = new Point2D(572, 155);	
+		
+		ArrayList<Point2D> points = new ArrayList<>();
+		points.add(pCal1);
+		points.add(pCal2);
+		points.add(pWa);
+		points.add(pUt);
+		points.add(pCo);
+		points.add(pNe);
+		points.add(pTx);
+		points.add(pIl);
+		points.add(pMi);
+		points.add(pGa);
+		points.add(pPa);
+		points.add(pNy);
+		points.add(pDc);
+		points.add(pNj);
+		
+		for( Point2D point : points) {
+			point.setLocation(point.x+35, point.y+20);
+		}
+		
+		Pane nodes = new Pane();
+		Circle ca1 = new Circle(pCal1.x,pCal1.y,6);
+		Circle ca2 = new Circle(pCal2.x,pCal2.y,6);
+		Circle wa= new Circle(pWa.x,pWa.y,6);
+		Circle ut = new Circle(pUt.x,pUt.y,6);
+		Circle co = new Circle(pCo.x,pCo.y,6);
+		Circle ne = new Circle(pNe.x,pNe.y,6);
+		Circle tx = new Circle(pTx.x,pTx.y,6);
+		Circle il = new Circle(pIl.x, pIl.y, 6);
+		Circle mi = new Circle(pMi.x,pMi.y,6);
+		Circle ga = new Circle(pGa.x,pGa.y,6);
+		Circle pa = new Circle(pPa.x,pPa.y,6);
+		Circle ny = new Circle(pNy.x,pNy.y,6);
+		Circle dc = new Circle(pDc.x,pDc.y,6);
+		Circle nj= new Circle(pNj.x,pNj.y,6);
+		
+		Line lCal1toCal2 = new Line(pCal1.x, pCal1.y, pCal2.x, pCal2.y);
+		Line lcal1toWa = new Line(pCal1.x,pCal1.y,pWa.x,pWa.y);
+		Line lcal1toTx = new Line(pCal1.x,pCal1.y,pTx.x,pTx.y);
+		Line lCal2toWa = new Line(pCal2.x,pCal2.y,pWa.x,pWa.y);
+		Line lCal2toUt = new Line(pCal2.x,pCal2.y,pUt.x,pUt.y);
+		Line lWatoIl = new Line(pWa.x,pWa.y,pIl.x,pIl.y);
+		Line lUttoCo = new Line(pUt.x,pUt.y,pCo.x,pCo.y);
+		Line lUttoMi = new Line(pUt.x,pUt.y,pMi.x,pMi.y);
+		Line lCotoNe = new Line(pCo.x,pCo.y,pNe.x,pNe.y);
+		Line lCotoTx = new Line(pCo.x,pCo.y,pTx.x,pTx.y);
+		Line lNetoIl = new Line(pNe.x,pNe.y,pIl.x,pIl.y);
+		Line lTxtoDc = new Line(pTx.x,pTx.y,pDc.x,pDc.y);
+		Line lTxtoGa = new Line(pTx.x,pTx.y,pGa.x,pGa.y);
+		Line lIltoPa = new Line(pIl.x,pIl.y, pPa.x,pPa.y); 
+		Line lPatoGa = new Line(pPa.x,pPa.y,pGa.x,pGa.y);
+		Line lPatoNj = new Line(pPa.x,pPa.y,pNj.x,pNj.y);
+		Line lPatoNy = new Line(pPa.x,pPa.y,pNy.x,pNy.y);
+		Line lMitoNy = new Line(pMi.x,pMi.y,pNy.x,pNy.y);
+		Line lMitoNj = new Line(pMi.x,pMi.y,pNj.x,pNj.y);
+		Line lDctoNy = new Line(pDc.x,pDc.y,pNy.x,pNy.y);
+		Line lDctoNj = new Line(pDc.x,pDc.y,pNj.x,pNj.y);
+		
+		
+		nodes.getChildren().addAll(ca1,ca2,wa,ut,co,ne,tx,il,mi,ga,pa,ny,dc,nj);
+		nodes.getChildren().addAll(lCal1toCal2,lCal2toWa,lcal1toWa,lcal1toTx,lCal2toUt,lWatoIl,lUttoCo,lUttoMi,lCotoNe,lCotoTx);
+		nodes.getChildren().addAll(lNetoIl,lTxtoDc,lTxtoGa,lIltoPa,lPatoGa,lPatoNj,lPatoNy,lMitoNj,lMitoNy,lDctoNj,lDctoNy);
+		stackPane.getChildren().addAll(nodes,ivHolder);
+		
+		
+		
+	}
+	
 	
 //	reading csv files
 	
 	public void readcsvfile(File read) throws FileNotFoundException {
-		System.out.println("most recent: "+ read.lastModified());
 		scanner = new Scanner(read);
 		ArrayList<String[]> file = new ArrayList<>();
 		while(scanner.hasNext()) {
 			
 			String[] line = scanner.nextLine().split(",");
 			file.add(line);
-		}
-		
-		for(String [] line : file) {
-			for(String word : line) {
-				System.out.print(word +" ");
-			}
-			System.out.println("");
-		}
+		}	
 		
 		displayFile(file);
 		
 	}	
 	
 	public void displayFile(ArrayList<String[]> file) {
-		GridPane left = new GridPane();
-		left.setGridLinesVisible(true);
-		left.setHgap(10);
-		left.setVgap(10);
-		left.setPadding(new Insets(10));
-		layout.setLeft(left);
+		GridPane right = new GridPane();
+		right.setGridLinesVisible(true);
+		right.setHgap(10);
+		right.setVgap(10);
+		right.setPadding(new Insets(10));
+		layout.setRight(right);
+		right.setAlignment(Pos.CENTER);
 		
 		for(int i =0; i<file.size();i++) {
 			for(int j=0; j< file.get(i).length; j++) {
@@ -406,11 +508,9 @@ public class Gui2  extends Application{
 				text.setFont(new Font(16));
 				cell.getChildren().add(text);
 				cell.setAlignment(Pos.CENTER);
-				left.add(cell, j, i);
+				right.add(cell, j, i);
 			}
-		}
-		
-		
+		}	
 	}
 	
 	public File mostRecentFile(File[] csvFiles) {
