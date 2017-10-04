@@ -386,7 +386,6 @@ public class Gui2  extends Application{
 		layout.setCenter(stackPane);
 		
 		HBox ivHolder = new HBox();
-		System.out.println(project);
 		Image map = new Image(getClass().getResourceAsStream("../img/usaMap.png"));
 		ImageView iv = new ImageView(map);
 		iv.setBlendMode(BlendMode.MULTIPLY);
