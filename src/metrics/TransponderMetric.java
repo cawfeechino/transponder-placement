@@ -115,7 +115,7 @@ public class TransponderMetric{
 			sc.close();
 		}
 
-		for(int i = 20; i <= 60; i+=20){
+		for(int i = 20; i <= 40; i+=20){
 
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			

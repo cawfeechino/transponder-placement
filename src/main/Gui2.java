@@ -186,9 +186,6 @@ public class Gui2  extends Application{
 
 						root.getChildren().add(spinner);
 						
-						StackPane stack = new StackPane();
-						stack.getChildren().add(spinner);
-						layout.setCenter(stack);
 						
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
