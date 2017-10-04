@@ -295,7 +295,6 @@ public class Gui2  extends Application{
 
 				//test method work before running a topology simulation
 //				readcsvfile(mostRecentFile(new File(path).listFiles()));
-				drawNsfNet();
 				
 				layout.setTop(menu);
 				layout.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE, null, null)));
