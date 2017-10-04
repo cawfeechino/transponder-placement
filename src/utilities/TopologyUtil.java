@@ -1,11 +1,13 @@
 package utilities;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import models.Pair;
 import models.PhysicalLink;
@@ -13,10 +15,11 @@ import models.PhysicalNode;
 import models.Topology;
 
 public class TopologyUtil {
-
-	private final static int SPACE = 32;
-	private final static int NEW_LINE = 10;
-	private final static int TAB = 9;
+	
+//	required for FileInputStream version
+//	private final static int SPACE = 32;
+//	private final static int NEW_LINE = 10;
+//	private final static int TAB = 9;
 	
 	public static Topology readAdjacencyMatrix(NetworkTopology type, int computationalAvailability, int bandwidthAvailability) throws IOException{
 		
@@ -55,7 +58,8 @@ public class TopologyUtil {
 		return nodes;
 	}
 	
-	private static List<PhysicalLink> createPhysicalLinks(Topology topology) throws IOException{
+	//previous assistant's version using FileInputStream
+	/*private static List<PhysicalLink> createPhysicalLinks(Topology topology) throws IOException{
 		
 		List<PhysicalLink> links = new ArrayList<>();
 		FileInputStream input = new FileInputStream(new java.io.File(topology.getType().getFilePath()));
@@ -90,6 +94,37 @@ public class TopologyUtil {
 		}
 		
 		input.close();
+		
+		return links;
+	}*/
+	
+	//andy's version using scanner
+	private static List<PhysicalLink> createPhysicalLinks(Topology topology) throws IOException{
+		
+		List<PhysicalLink> links = new ArrayList<>();
+		Map<Integer, PhysicalNode> nodes = topology.getNodes();
+		
+		int linkDistanceInt;
+		int currentNode = 0, adjacentNode = 0;
+		
+		Scanner scanner = new Scanner(new java.io.File(topology.getType().getFilePath()));
+		String strLine;
+		while (scanner.hasNext()) {
+			strLine = scanner.nextLine();
+			for(String linkDistanceStr : strLine.split("\\s+")) {
+				linkDistanceInt = Integer.parseInt(linkDistanceStr);
+				if(linkDistanceInt > 0){
+					nodes.get(currentNode).getAdjacentNodes().put(adjacentNode, linkDistanceInt);
+					if(adjacentNode > currentNode){
+						links.add(new PhysicalLink (linkDistanceInt, topology.getBandwidthAvailability(), new Pair<>(currentNode, adjacentNode)));
+					}
+				}
+				adjacentNode++;
+			}
+			currentNode++;
+			adjacentNode = 0;
+		}
+		scanner.close();
 		
 		return links;
 	}
