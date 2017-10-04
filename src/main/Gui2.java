@@ -115,6 +115,15 @@ public class Gui2  extends Application{
 					}
 				});
 				
+				dHyperCube8.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent event) {
+						drawHyperCube8();
+						
+					}
+				});
+				
 				dNsfnet.setOnAction(new EventHandler<ActionEvent>() {
 					//10x 20 y
 					@Override
@@ -123,17 +132,8 @@ public class Gui2  extends Application{
 					}
 				});
 				
-//				Image pic = new Image(getClass().getResourceAsStream("../img/us-map-outline.png"));
-//				ImageView iv = new ImageView(pic);
-//				root.getChildren().add(iv);
-//				Pane nodes = new Pane();
-//				Circle sd = new Circle(75,275,8);
-//				Circle pa = new Circle(30,197,8);
-//				Circle se= new Circle(73,50,8);
-//				//Circle slc = new Circle() 
-//				nodes.getChildren().addAll(sd,pa,se);
-//				layout.setCenter(nodes);
-//			
+				
+			
 				//
 				//action event listener for performance topology 
 	
@@ -298,6 +298,50 @@ public class Gui2  extends Application{
 	
 	//draw mesh8
 	//(x,y) X is top left to right Y is from top left to bottom
+	public void drawHyperCube8( ) {
+		Pane nodes = new Pane();
+		Point2D mPoint1 = new Point2D(100,150);
+		Point2D mPoint2 = new Point2D(400,150);
+		Point2D mPoint3 = new Point2D(100,400);
+		Point2D mPoint4 = new Point2D(400,400);
+		
+		Point2D mPoint5 = new Point2D(250,50);
+		Point2D mPoint6 = new Point2D(550,50);
+		Point2D mPoint7 = new Point2D(250,300);
+		Point2D mPoint8 = new Point2D(550,300);
+		
+		Circle f1 = new Circle(mPoint1.x,mPoint1.y,8);
+		Circle f2 = new Circle(mPoint2.x,mPoint2.y,8);
+		Circle f3= new Circle(mPoint3.x,mPoint3.y,8);
+		Circle f4= new Circle(mPoint4.y,mPoint4.y,8);
+		
+		Circle b1 = new Circle(mPoint5.x,mPoint5.y,8);
+		Circle b2 = new Circle(mPoint6.x,mPoint6.y,8);
+		Circle b3= new Circle(mPoint7.x,mPoint7.y,8);
+		Circle b4= new Circle(mPoint8.x,mPoint8.y,8);
+		
+		Line linef1tob1 = new Line(100,150,250,50);
+		Line linef2tob2 = new Line(400,150,550,50);
+		Line linef3tob3 = new Line(100,400,250,300);
+		Line linef4tob4 = new Line(400,400,550,300);
+		
+		Line linef1tof2 = new Line(100,150,400,150);
+		Line linef2tof4 = new Line(400,150,400,400);
+		Line linef3tof1 = new Line(100,400,100,150);
+		Line linef4tof3 = new Line(400,400,100,400);
+		
+		Line lineb1tob2 = new Line(250,50,550,50);
+		Line lineb2tob4 = new Line(550,50,550,300);
+		Line lineb3tob1 = new Line(250,300,250,50);
+		Line lineb4tob3 = new Line(550,300,250,300);
+		
+		//Circle slc = new Circle() 
+		nodes.getChildren().addAll(f1,f2,f3,f4,b1,b2,b3,b4);
+		nodes.getChildren().addAll(linef1tob1,linef2tob2,linef3tob3,linef4tob4);
+		nodes.getChildren().addAll(linef1tof2,linef2tof4,linef3tof1,linef4tof3);
+		nodes.getChildren().addAll(lineb1tob2,lineb2tob4,lineb3tob1,lineb4tob3);
+		layout.setCenter(nodes);
+	}
 	public void drawMesh8() {
 		
 		Pane draw= new Pane();
@@ -310,7 +354,7 @@ public class Gui2  extends Application{
 		Point2D mPoint7 = new Point2D(250,350);
 		Point2D mPoint8 = new Point2D(150,250);
 		
-		Circle point1 = new Circle(mPoint1.x,mPoint1.y, 10);
+		Circle point1 = new Circle(mPoint1.x,mPoint1.y,10);
 		Circle point2 = new Circle(mPoint2.x,mPoint2.y,10);
 		Circle point3 = new Circle(mPoint3.x,mPoint3.y,10);
 		Circle point4 = new Circle(mPoint4.x,mPoint4.y,10);
