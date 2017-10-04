@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -44,6 +45,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import metrics.TransponderMetric;
 import utilities.NetworkTopology;
+import draw.Ring8;
 
 public class Gui2  extends Application{
 	
@@ -52,9 +54,13 @@ public class Gui2  extends Application{
 	private Task<Void> mainTask;
 	private String[] run;
 
+
 	BorderPane layout;
 	StackPane root;
 	String project;
+
+	private Ring8 drawRing8;
+
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -91,6 +97,7 @@ public class Gui2  extends Application{
 				});
 				
 				MenuBar menu = new MenuBar();
+
 				Menu menufile = new Menu("File");
 					MenuItem setRequest = new MenuItem("Set Request");
 					Menu topolodyDiagram = new Menu("Topology Diagram");
@@ -153,6 +160,14 @@ public class Gui2  extends Application{
 					}
 				});						
 				
+
+				dRing8.setOnAction(new EventHandler<ActionEvent>(){
+					@Override
+					public void handle(ActionEvent event) {
+						drawRing8();
+					}
+				});
+				
 				//action event listener for performance topology 
 	
 				String path =  project.concat("/src/results/");	
@@ -161,7 +176,6 @@ public class Gui2  extends Application{
 					
 					@Override
 					public void handle(ActionEvent event) {
-						
 						run = new String[2];
 						run[0]=NetworkTopology.RING8.name();
 						run[1]= "30";
@@ -169,12 +183,18 @@ public class Gui2  extends Application{
 						mainTask = backgroundTask(run);
 						backgroundThread= new Thread(mainTask);
 						backgroundThread.start();
+
 						root.getChildren().add(spinner);
+						
+						StackPane stack = new StackPane();
+						stack.getChildren().add(spinner);
+						layout.setCenter(stack);
 						
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
+
 								
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
@@ -188,7 +208,8 @@ public class Gui2  extends Application{
 								
 							}
 							
-					
+								
+							
 						});
 		 					
 					}
@@ -208,10 +229,12 @@ public class Gui2  extends Application{
 						backgroundThread.start();
 						root.getChildren().add(spinner);
 
+
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
 							@Override
 							public void handle(WorkerStateEvent event) {
+
 								File folder = new File(path);
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
@@ -221,6 +244,7 @@ public class Gui2  extends Application{
 									e.printStackTrace();
 								}
 								root.getChildren().remove(spinner);
+
 							}
 						});
 						
@@ -241,6 +265,7 @@ public class Gui2  extends Application{
 						backgroundThread.start();
 						root.getChildren().add(spinner);
 
+
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
 							@Override
@@ -254,6 +279,7 @@ public class Gui2  extends Application{
 									e.printStackTrace();
 								}
 								root.getChildren().remove(spinner);
+
 							}
 						});
 						
@@ -264,6 +290,7 @@ public class Gui2  extends Application{
 					
 					@Override
 					public void handle(ActionEvent event) {
+
 						run = new String[2];
 						run[0]=NetworkTopology.HYPERCUBE16.name();
 						run[1]= "30";
@@ -272,6 +299,7 @@ public class Gui2  extends Application{
 						backgroundThread= new Thread(mainTask);
 						backgroundThread.start();
 						root.getChildren().add(spinner);
+
 
 						mainTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 							
@@ -295,6 +323,8 @@ public class Gui2  extends Application{
 
 				//test method work before running a topology simulation
 //				readcsvfile(mostRecentFile(new File(path).listFiles()));
+//				readcsvfile(mostRecentFile(new File(path).listFiles()));			
+				
 				
 				layout.setTop(menu);
 				layout.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE, null, null)));
@@ -304,7 +334,6 @@ public class Gui2  extends Application{
 		        primaryStage.show();
 		
 	}
-	
 	
 	//draw mesh8
 	//(x,y) X is top left to right Y is from top left to bottom
@@ -475,6 +504,99 @@ public class Gui2  extends Application{
 	}
 	
 	
+	public void drawSimple() {
+		
+	}
+	
+	public void drawRing8() {
+		Pane draw= new Pane();
+		Point2D mPoint1 = new Point2D(150,150);
+		Point2D mPoint2 = new Point2D(250,50);
+		Point2D mPoint3 = new Point2D(400,50);
+		Point2D mPoint4 = new Point2D(500,150);
+		Point2D mPoint5 = new Point2D(500,250);
+		Point2D mPoint6 = new Point2D(400,350);
+		Point2D mPoint7 = new Point2D(250,350);
+		Point2D mPoint8 = new Point2D(150,250);
+		
+		Circle point1 = new Circle(mPoint1.x,mPoint1.y,20);
+		point1.setFill(Color.TRANSPARENT);
+		point1.setStroke(Color.BLACK);
+		Circle point2 = new Circle(mPoint2.x,mPoint2.y,20);
+		point2.setFill(Color.TRANSPARENT);
+		point2.setStroke(Color.BLACK);
+		Circle point3 = new Circle(mPoint3.x,mPoint3.y,20);
+		point3.setFill(Color.TRANSPARENT);
+		point3.setStroke(Color.BLACK);
+		Circle point4 = new Circle(mPoint4.x,mPoint4.y,20);
+		point4.setFill(Color.TRANSPARENT);
+		point4.setStroke(Color.BLACK);
+		Circle point5 = new Circle(mPoint5.x,mPoint5.y,20);
+		point5.setFill(Color.TRANSPARENT);
+		point5.setStroke(Color.BLACK);
+		Circle point6 = new Circle(mPoint6.x,mPoint6.y,20);
+		point6.setFill(Color.TRANSPARENT);
+		point6.setStroke(Color.BLACK);
+		Circle point7 = new Circle(mPoint7.x,mPoint7.y,20);
+		point7.setFill(Color.TRANSPARENT);
+		point7.setStroke(Color.BLACK);
+		Circle point8 = new Circle(mPoint8.x,mPoint8.y,20);
+		point8.setFill(Color.TRANSPARENT);
+		point8.setStroke(Color.BLACK);
+		
+		Label label1 = new Label("1");
+	    label1.setTranslateX(mPoint1.x);
+	    label1.setTranslateY(mPoint1.y);
+		Label label2 = new Label("2");
+	    label2.setTranslateX(mPoint2.x);
+	    label2.setTranslateY(mPoint2.y);
+		Label label3 = new Label("3");
+	    label3.setTranslateX(mPoint3.x);
+	    label3.setTranslateY(mPoint3.y);
+		Label label4 = new Label("4");
+	    label4.setTranslateX(mPoint4.x);
+	    label4.setTranslateY(mPoint4.y);
+		//1st node 
+		Line line1to2 = new Line(mPoint1.x,mPoint1.y,mPoint2.x,mPoint2.y);
+		
+		//second node
+		Line line2to3= new Line(mPoint2.x,mPoint2.y, mPoint3.x,mPoint3.y);
+		
+
+		//3rd node
+		Line line3to4 = new Line(mPoint3.x, mPoint3.y, mPoint4.x, mPoint4.y);
+
+		//4th
+		Line line4to5 = new Line(mPoint4.x,mPoint4.y,mPoint5.x,mPoint5.y);
+
+		
+		//5th
+		Line line5to6 = new Line(mPoint5.x, mPoint5.y, mPoint6.x, mPoint6.y);
+		
+		//6th
+		Line line6to7 = new Line(mPoint6.x, mPoint6.y, mPoint7.x, mPoint7.y);
+		
+		//7th
+		Line line7to8 = new Line(mPoint7.x, mPoint7.y, mPoint8.x, mPoint8.y);
+		
+		//8th
+		Line line8to1 = new Line(mPoint8.x, mPoint8.y, mPoint1.x, mPoint1.y);
+		
+		
+		draw.getChildren().addAll(point1,point2,point3,point4,point5,point6,point7,point8);	
+		draw.getChildren().add(line1to2);
+		draw.getChildren().add(line2to3);
+		draw.getChildren().add(line3to4);
+		draw.getChildren().add(line4to5);
+		draw.getChildren().add(line5to6);
+		draw.getChildren().add(line6to7);
+		draw.getChildren().add(line7to8);
+		draw.getChildren().add(line8to1);
+		draw.getChildren().addAll(label1, label2, label3, label4);
+		layout.setCenter(draw);
+				
+	}
+	
 //	reading csv files
 	
 	public void readcsvfile(File read) throws FileNotFoundException {
@@ -509,6 +631,9 @@ public class Gui2  extends Application{
 				right.add(cell, j, i);
 			}
 		}	
+		
+		
+		
 	}
 	
 	public File mostRecentFile(File[] csvFiles) {
@@ -550,5 +675,6 @@ public class Gui2  extends Application{
 			
 		};
 		return run;
+	
 	}
 }
