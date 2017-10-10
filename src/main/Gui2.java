@@ -18,6 +18,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -28,6 +31,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -37,6 +41,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
@@ -72,6 +77,7 @@ public class Gui2  extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//main scene and board
 				project = new File(".").getCanonicalPath();
+				String path =  project.concat("/src/results/");
 				layout = new BorderPane();
 				root = new StackPane();
 				Scene scene = new Scene(root, 800, 600);	
@@ -127,7 +133,30 @@ public class Gui2  extends Application{
 				
 					results.getItems().addAll(ring8,mesh8,hyperCube8,hyperCube16);
 					menuPerformance.getItems().add(results);
-				menu.getMenus().addAll(menufile,menuPerformance);
+					
+				Menu test = new Menu("Test");
+					MenuItem draw = new MenuItem("Draw Chart");
+				test.getItems().add(draw);
+				
+				
+				menu.getMenus().addAll(menufile,menuPerformance,test);
+				
+				draw.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent event) {
+						File folder = new File(path);
+						File[] csvFiles = folder.listFiles();
+						File mostRecent = mostRecentFile(csvFiles);
+						try {
+							displayFile(readableFile(mostRecent));
+							drawMesh8Chart(readableFile(mostRecent));
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						}
+						
+					}
+				});
 				
 				ProgressIndicator spinner  = new ProgressIndicator();
 				spinner.setMaxWidth(350);
@@ -181,7 +210,7 @@ public class Gui2  extends Application{
 	
 				//action event listener for performance topology 
 	
-				String path =  project.concat("/src/results/");	
+					
 				
 				ring8.setOnAction(new EventHandler<ActionEvent>() {
 					
@@ -208,7 +237,7 @@ public class Gui2  extends Application{
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
 								try {
-									readcsvfile(mostRecent);
+									displayFile(readableFile(mostRecent));
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
@@ -247,13 +276,15 @@ public class Gui2  extends Application{
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
 								try {
-									readcsvfile(mostRecent);
+									displayFile(readableFile(mostRecent));
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
 								root.getChildren().remove(spinner);
 
 							}
+
+							
 						});
 						
 					}
@@ -282,7 +313,7 @@ public class Gui2  extends Application{
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
 								try {
-									readcsvfile(mostRecent);
+									displayFile(readableFile(mostRecent));
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
@@ -317,7 +348,7 @@ public class Gui2  extends Application{
 								File[] csvFiles = folder.listFiles();
 								File mostRecent = mostRecentFile(csvFiles);
 								try {
-									readcsvfile(mostRecent);
+									displayFile(readableFile(mostRecent));
 								} catch (FileNotFoundException e) {
 									e.printStackTrace();
 								}
@@ -334,19 +365,81 @@ public class Gui2  extends Application{
 //				readcsvfile(mostRecentFile(new File(path).listFiles()));			
 				
 				
+				
 				layout.setTop(menu);
 				layout.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE, null, null)));
 					
+				
 		        primaryStage.setTitle("Transponder Placement");
 		        primaryStage.setScene(scene);
 		        primaryStage.show();
 		
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void drawMesh8Chart(ArrayList<String[]> readableFile) throws FileNotFoundException {
+		VBox box = new VBox();
+		GridPane grid = (GridPane) layout.getRight();
+		box.getChildren().add(grid);
+		
+		NumberAxis xAxis = new NumberAxis();
+		NumberAxis yAxis = new NumberAxis();
+		xAxis.setLabel("Bandwith");
+		yAxis.setLabel("Fequency");
+		
+		String[][] results = transpose(readableFile);
+		int[] x = new int[results[0].length-1];
+	
+			for(int i= 1; i <results[0].length; i++) {
+				x[i-1] = (int) Integer.parseInt(results[0][i]);
+			}
+		
+		LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+		lineChart.setTitle("chart");
+		
+		System.out.println(results[0][1]);
+		System.out.println(results[1][0]);
+		System.out.println(results[2][0]);
+		System.out.println(results[3][0]);
+		
+		for(int i =1; i <results.length; i++) {
+			XYChart.Series series = new XYChart.Series();
+			series.setName(results[i][0]);
+			for(int j= 1; j <results[i].length; j++) {
+				series.getData().add(new XYChart.Data<Integer, Integer>(x[j-1], (int) Integer.parseInt(results[i][j])));
+			}
+			lineChart.getData().add(series);
+		}		
+		
+	
+		box.getChildren().add(lineChart);
+		layout.setRight(box);
+		
+		
+	}
+	
+	public String[][] transpose(ArrayList<String[]> file){
+		int r = file.size();
+		int c = file.get(0).length;
+		
+		String[][] results= new String[c][r]; 
+		for(int i =0; i <file.size(); i++) {
+			for(int j= 0; j <file.get(i).length; j++) {
+				results[j][i]=file.get(i)[j];
+			}
+		}		
+		
+		return results;
+	}
+	
+	
 	//draw mesh8
 	//(x,y) X is top left to right Y is from top left to bottom
 	public void drawHyperCube8( ) {
+		VBox box = new VBox();
 		Pane nodes = new Pane();
+		box.getChildren().add(nodes);
+		box.setAlignment(Pos.CENTER_LEFT);
 		Point2D mPoint1 = new Point2D(100,150);
 		Point2D mPoint2 = new Point2D(400,150);
 		Point2D mPoint3 = new Point2D(100,400);
@@ -382,16 +475,16 @@ public class Gui2  extends Application{
 		Line lineb3tob1 = new Line(250,300,250,50);
 		Line lineb4tob3 = new Line(550,300,250,300);
 		
-		//Circle slc = new Circle() 
 		nodes.getChildren().addAll(f1,f2,f3,f4,b1,b2,b3,b4);
 		nodes.getChildren().addAll(linef1tob1,linef2tob2,linef3tob3,linef4tob4);
 		nodes.getChildren().addAll(linef1tof2,linef2tof4,linef3tof1,linef4tof3);
 		nodes.getChildren().addAll(lineb1tob2,lineb2tob4,lineb3tob1,lineb4tob3);
-		layout.setCenter(nodes);
+		layout.setCenter(box);
 	}
 	public void drawMesh8() {
 		
 		Pane draw= new Pane();
+		
 		Point2D mPoint1 = new Point2D(150,150);
 		Point2D mPoint2 = new Point2D(250,50);
 		Point2D mPoint3 = new Point2D(400,50);
@@ -562,52 +655,30 @@ public class Gui2  extends Application{
 	
 	public void drawRing8() {
 		Pane draw= new Pane();
-		Point2D mPoint1 = new Point2D(150,150);
-		Point2D mPoint2 = new Point2D(250,50);
-		Point2D mPoint3 = new Point2D(400,50);
-		Point2D mPoint4 = new Point2D(500,150);
-		Point2D mPoint5 = new Point2D(500,250);
-		Point2D mPoint6 = new Point2D(400,350);
-		Point2D mPoint7 = new Point2D(250,350);
-		Point2D mPoint8 = new Point2D(150,250);
+		Point2D mPoint1 = new Point2D(150,200);
+		Point2D mPoint2 = new Point2D(201,77);
+		Point2D mPoint3 = new Point2D(325,25);
+		Point2D mPoint4 = new Point2D(452,80);
+		Point2D mPoint5 = new Point2D(500,200);
+		Point2D mPoint6 = new Point2D(448,325);
+		Point2D mPoint7 = new Point2D(325,375);
+		Point2D mPoint8 = new Point2D(198,322);
 		
-		Circle point1 = new Circle(mPoint1.x,mPoint1.y,20);
-		point1.setFill(Color.TRANSPARENT);
-		point1.setStroke(Color.BLACK);
-		Circle point2 = new Circle(mPoint2.x,mPoint2.y,20);
-		point2.setFill(Color.TRANSPARENT);
-		point2.setStroke(Color.BLACK);
-		Circle point3 = new Circle(mPoint3.x,mPoint3.y,20);
-		point3.setFill(Color.TRANSPARENT);
-		point3.setStroke(Color.BLACK);
-		Circle point4 = new Circle(mPoint4.x,mPoint4.y,20);
-		point4.setFill(Color.TRANSPARENT);
-		point4.setStroke(Color.BLACK);
-		Circle point5 = new Circle(mPoint5.x,mPoint5.y,20);
-		point5.setFill(Color.TRANSPARENT);
-		point5.setStroke(Color.BLACK);
-		Circle point6 = new Circle(mPoint6.x,mPoint6.y,20);
-		point6.setFill(Color.TRANSPARENT);
-		point6.setStroke(Color.BLACK);
-		Circle point7 = new Circle(mPoint7.x,mPoint7.y,20);
-		point7.setFill(Color.TRANSPARENT);
-		point7.setStroke(Color.BLACK);
-		Circle point8 = new Circle(mPoint8.x,mPoint8.y,20);
-		point8.setFill(Color.TRANSPARENT);
-		point8.setStroke(Color.BLACK);
+		Circle ring = new Circle(325,200,175);
+		Circle center = new Circle(325,200,10);
+		ring.setFill(null);
+		ring.setStroke(Color.BLACK);
 		
-		Label label1 = new Label("1");
-	    label1.setTranslateX(mPoint1.x);
-	    label1.setTranslateY(mPoint1.y);
-		Label label2 = new Label("2");
-	    label2.setTranslateX(mPoint2.x);
-	    label2.setTranslateY(mPoint2.y);
-		Label label3 = new Label("3");
-	    label3.setTranslateX(mPoint3.x);
-	    label3.setTranslateY(mPoint3.y);
-		Label label4 = new Label("4");
-	    label4.setTranslateX(mPoint4.x);
-	    label4.setTranslateY(mPoint4.y);
+		Circle point1 = new Circle(mPoint1.x,mPoint1.y,10);
+		Circle point2 = new Circle(mPoint2.x,mPoint2.y,10);
+		Circle point3 = new Circle(mPoint3.x,mPoint3.y,10);
+		Circle point4 = new Circle(mPoint4.x,mPoint4.y,10);
+		Circle point5 = new Circle(mPoint5.x,mPoint5.y,10);
+		Circle point6 = new Circle(mPoint6.x,mPoint6.y,10);
+		Circle point7 = new Circle(mPoint7.x,mPoint7.y,10);
+		Circle point8 = new Circle(mPoint8.x,mPoint8.y,10);
+		
+
 		//1st node 
 		Line line1to2 = new Line(mPoint1.x,mPoint1.y,mPoint2.x,mPoint2.y);
 		
@@ -644,14 +715,14 @@ public class Gui2  extends Application{
 		draw.getChildren().add(line6to7);
 		draw.getChildren().add(line7to8);
 		draw.getChildren().add(line8to1);
-		draw.getChildren().addAll(label1, label2, label3, label4);
+		draw.getChildren().addAll(ring,center);
 		layout.setCenter(draw);
 				
 	}
 	
 //	reading csv files
 	
-	public void readcsvfile(File read) throws FileNotFoundException {
+	public ArrayList<String[]> readableFile(File read) throws FileNotFoundException {
 		scanner = new Scanner(read);
 		ArrayList<String[]> file = new ArrayList<>();
 		while(scanner.hasNext()) {
@@ -659,10 +730,9 @@ public class Gui2  extends Application{
 			String[] line = scanner.nextLine().split(",");
 			file.add(line);
 		}	
-		
-		displayFile(file);
-		
+		return file;
 	}	
+	
 	
 	public void displayFile(ArrayList<String[]> file) {
 		GridPane right = new GridPane();
