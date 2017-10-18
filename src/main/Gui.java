@@ -8,9 +8,12 @@ import com.sun.javafx.geom.Point2D;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -59,7 +62,6 @@ public class Gui extends Application{
 			
 		//main body will be switching content when different tabs are clicked
 		BorderPane body1 = new BorderPane();
-		body1.autosize();
 		//body1.setPrefWidth(scene.getWidth());
 		scrollPane.setContent(body1);
 	
@@ -68,10 +70,10 @@ public class Gui extends Application{
 		HBox selector = new HBox();
 		selector.setPadding(new Insets(15));
 		Label topolgyLabel = new Label("Name of Topolgy: ");
-		ComboBox<String> topolgy = new ComboBox<>();
-		topolgy.setPromptText("Select Topology");
-		topolgy.getItems().addAll("Ring 8", "Mesh 8", "HyperCube 8", "HyperCube 16", "NsfNet");
-		topolgy.valueProperty().addListener(new ChangeListener<String>() {
+		ComboBox<String> topology = new ComboBox<>();
+		topology.setPromptText("Select Topology");
+		topology.getItems().addAll("Ring 8", "Mesh 8", "HyperCube 8", "HyperCube 16", "NsfNet");
+		topology.valueProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -98,23 +100,54 @@ public class Gui extends Application{
 			}
 		});
 		  
-		selector.getChildren().addAll(topolgyLabel,topolgy);
+		selector.getChildren().addAll(topolgyLabel,topology);
 		selector.setAlignment(Pos.TOP_CENTER);
 		
 		Line border = new Line(20,0,750,0);
 		top.getChildren().addAll(selector,border);
 		top.setPadding(new Insets(15));
 		body1.setTop(top);		
+		
+		
+		
+		
+		//side nav with closable button
 				
-		HBox body= new HBox();
 		VBox sideNav = new VBox();
+			VBox topologyNav = new VBox();
+				HBox topologyForm = new HBox();
+					Label lTopology = new Label("Topology");
+					Button bTopology = new Button("-");
+					topologyForm.getChildren().addAll(lTopology,bTopology);
+				Label ring = new Label("Ring 8");
+				Label mesh = new Label("Mesh 8");
+			topologyNav.getChildren().addAll(topologyForm);
+		sideNav.getChildren().addAll(topologyNav);
+		sideNav.setPadding(new Insets(15));
+		topologyNav.setPadding(new Insets(15));
+		topologyNav.setAlignment(Pos.TOP_CENTER);
+		topologyNav.setSpacing(10);
+		topologyForm.setSpacing(10);
+	
 		
-		body.getChildren().add(sideNav);
-		Label text = new Label("text");
-		sideNav.getChildren().add(text);
-		sideNav.setPrefHeight(scene.getHeight());
 		
-		//scrollPane.setContent(body1);
+		
+		bTopology.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				//add remove stuff
+			
+				if(topologyNav.getChildren().contains(ring)) {
+					topologyNav.getChildren().removeAll(ring,mesh);
+				}else {
+					topologyNav.getChildren().addAll(ring,mesh);
+				}				
+			}
+		});
+
+		body1.setLeft(sideNav);		
+		
 		primaryStage.setTitle("Transponder Placement");
         primaryStage.setScene(scene);
         primaryStage.show();
