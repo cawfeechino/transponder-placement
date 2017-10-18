@@ -150,7 +150,7 @@ public class Gui2  extends Application{
 						File mostRecent = mostRecentFile(csvFiles);
 						try {
 							displayFile(readableFile(mostRecent));
-							drawMesh8Chart(readableFile(mostRecent));
+							drawChart(readableFile(mostRecent));
 						} catch (FileNotFoundException e) {
 							e.printStackTrace();
 						}
@@ -377,10 +377,9 @@ public class Gui2  extends Application{
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void drawMesh8Chart(ArrayList<String[]> readableFile) throws FileNotFoundException {
-		VBox box = new VBox();
-		GridPane grid = (GridPane) layout.getRight();
-		box.getChildren().add(grid);
+	private void drawChart(ArrayList<String[]> readableFile) throws FileNotFoundException {
+		displayFile(readableFile);
+		VBox box = new VBox();		
 		
 		NumberAxis xAxis = new NumberAxis();
 		NumberAxis yAxis = new NumberAxis();
@@ -388,6 +387,7 @@ public class Gui2  extends Application{
 		yAxis.setLabel("Fequency");
 		
 		String[][] results = transpose(readableFile);
+		//dont want the first results since it its name of column 
 		int[] x = new int[results[0].length-1];
 	
 			for(int i= 1; i <results[0].length; i++) {
@@ -396,11 +396,6 @@ public class Gui2  extends Application{
 		
 		LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
 		lineChart.setTitle("chart");
-		
-		System.out.println(results[0][1]);
-		System.out.println(results[1][0]);
-		System.out.println(results[2][0]);
-		System.out.println(results[3][0]);
 		
 		for(int i =1; i <results.length; i++) {
 			XYChart.Series series = new XYChart.Series();
@@ -740,7 +735,7 @@ public class Gui2  extends Application{
 		right.setHgap(10);
 		right.setVgap(10);
 		right.setPadding(new Insets(10));
-		layout.setRight(right);
+		layout.setLeft(right);
 		right.setAlignment(Pos.CENTER);
 		
 		for(int i =0; i<file.size();i++) {
