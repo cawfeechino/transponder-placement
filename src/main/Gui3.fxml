@@ -2,6 +2,7 @@
 
 <?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -36,21 +37,34 @@
          <items>
             <Accordion maxWidth="280.0" minWidth="280.0">
               <panes>
-                <TitledPane animated="false" text="untitled 1">
+                <TitledPane text="Google Maps">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox layoutX="40.0" layoutY="14.0" prefWidth="200.0" />
+                           </children></AnchorPane>
+                  </content>
+                </TitledPane>
+                <TitledPane text="Node Edit">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
-                <TitledPane animated="false" text="untitled 2">
+                <TitledPane text="Save Topology">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
-                <TitledPane animated="false" text="untitled 3">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                  </content>
-                </TitledPane>
+                  <TitledPane animated="false" text="Traffic Request">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </TitledPane>
+                  <TitledPane animated="false" text="Routing">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </TitledPane>
               </panes>
             </Accordion>
             <StackPane prefHeight="150.0" prefWidth="200.0">

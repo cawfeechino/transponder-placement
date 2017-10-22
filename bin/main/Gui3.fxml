@@ -36,17 +36,17 @@
          <items>
             <Accordion maxWidth="280.0" minWidth="280.0">
               <panes>
-                <TitledPane animated="false" text="untitled 1">
+                <TitledPane text="untitled 1">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
-                <TitledPane animated="false" text="untitled 2">
+                <TitledPane text="untitled 2">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
-                <TitledPane animated="false" text="untitled 3">
+                <TitledPane text="untitled 3">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
