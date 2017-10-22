@@ -39,10 +39,7 @@
               <panes>
                 <TitledPane text="Google Maps">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <ComboBox layoutX="40.0" layoutY="14.0" prefWidth="200.0" />
-                           </children></AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
                 <TitledPane text="Node Edit">
@@ -55,14 +52,20 @@
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </TitledPane>
-                  <TitledPane animated="false" text="Traffic Request">
+                  <TitledPane text="Traffic Request">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox fx:id="trafficMethodBox" layoutX="15.0" layoutY="14.0" onAction="#trafficMethodChoice" prefWidth="250.0" />
+                           </children></AnchorPane>
                     </content>
                   </TitledPane>
-                  <TitledPane animated="false" text="Routing">
+                  <TitledPane text="Routing">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox fx:id="routingMethodBox" layoutX="15.0" layoutY="14.0" onAction="#routingMethodChoice" prefWidth="250.0" />
+                           </children></AnchorPane>
                     </content>
                   </TitledPane>
               </panes>
