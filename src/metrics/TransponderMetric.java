@@ -21,6 +21,7 @@ public class TransponderMetric{
 	
 	public TransponderMetric()throws IOException{}
 	
+	//take in topology type, bandwidth distribution type, routing type, threshold, custom request file path
 	public void start(NetworkTopology topology, int threshold) throws IOException{;
 		//getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
 
@@ -170,7 +171,7 @@ public class TransponderMetric{
 	public static void getResultsTest(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, int threshold, boolean customRequest) throws IOException{
 		String PROJECT_DIRECTORY =  new File(".").getCanonicalPath();
 		String RESULTS_DIRECTORY = "/src/results/";
-		String fileName = "";
+		String fileName = "_transponder_new_" + distributionType.name().toLowerCase() + "_";
 		switch(topology) {
 			case SIMPLE:
 				fileName = "_transponder_new_ring4_";
@@ -248,6 +249,77 @@ public class TransponderMetric{
 		pw.close();
 		
 		System.out.println("********************** done *******************");
+	}
+	
+	public static void getResultsTestTwo(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, int hybridThreshold, boolean customRequest) throws IOException{
+		String PROJECT_DIRECTORY =  new File(".").getCanonicalPath();
+		String RESULTS_DIRECTORY = "/src/results/";
+		String fileName = "_transponder_new_" + distributionType.name().toLowerCase() + "_" + routingType.toLowerCase() + "_";
+		File file = new File(PROJECT_DIRECTORY + RESULTS_DIRECTORY + hybridThreshold + fileName + distributionType.name().toLowerCase() + "_" + method.name().toLowerCase() + ".csv");
+		PrintWriter pw = new PrintWriter(file);
+		
+		
+		pw.println("Max_Bandwidth," + routingType + " ");
+		
+		ArrayList<CustomRequest> requests = new ArrayList<CustomRequest>();
+		if(customRequest) {
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Enter location of file.");
+			requests = RequestsUtil.createCustomRequests(sc.nextLine());
+			sc.close();
+		}
+		
+		//default 500
+		for(int i = 20; i <= maxBandwidth; i+=20){
+			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
+			
+			int sum = 0;
+			
+			for(int j = 0; j < 1000; j++){
+				Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
+				simulator.setMaxNodes(0);// setting requests with only two nodes.
+				simulator.setNumberOfRequest(500);
+				simulator.generateRequests();
+				
+				int transponders = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
+				
+				sum += transponders; 
+				
+			}				
+			pw.println(i + "," + sum/1000);
+		}
+		
+		pw.close();
+		
+		System.out.println("********************** done *******************");
+	}
+	
+	public static int getTranspondersByType(String routingType, Simulator simulator, int transponderCapacity, int maxBandwidth, String distribution,
+			boolean backupPath, ArrayList<CustomRequest> customRequest, int hybridThreshold) {
+		int transponders = 0;
+		switch(routingType) {
+		case "SPF":
+			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 0, backupPath, customRequest);
+			break;
+		case "LUF":
+			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 1, backupPath, customRequest);
+			break;
+		case "MUF":
+			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 2, backupPath, customRequest);
+			break;
+		case "OPT":
+			transponders = simulator.getTransponderOPT(transponderCapacity, maxBandwidth, distribution, backupPath);
+			break;
+		case "Hybrid":
+			transponders = simulator.getTranspondersHybrid(transponderCapacity, maxBandwidth, distribution, backupPath, hybridThreshold);
+			break;
+		case "MUX":
+			transponders = simulator.getTransponderMUX(transponderCapacity, maxBandwidth, distribution, backupPath);
+			break;
+		default:
+			break;
+		}
+		return transponders;
 	}
 	
 	public static void main(String args[]) throws IOException{

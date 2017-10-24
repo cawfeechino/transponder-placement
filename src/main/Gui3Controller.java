@@ -14,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.text.Text;
 
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 	
@@ -21,6 +22,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	ObservableList<String> routingMethodList = FXCollections.observableArrayList("--select a routing method--", "SPF", "LUF", "MUF", "OPT", "MUX", "Hybrid");
 	private String trafficMethod;
 	private String routingMethod;
+	private StringBuilder console = new StringBuilder();
 
 	@FXML
 	private ResourceBundle resources;
@@ -48,6 +50,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     	if(!trafficMethodBox.getValue().toString().equals("-select a traffic request method--")) {
     		trafficMethod = trafficMethodBox.getValue().toString();
     	}
+    	console.append(trafficMethod + "\n");
+    	consoleText.setText(console.toString());
     	System.out.println(trafficMethod);
     }
 
@@ -61,6 +65,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     	}
     	System.out.println(routingMethod);
     }
+    
+    @FXML
+    private Text consoleText;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
