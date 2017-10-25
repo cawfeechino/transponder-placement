@@ -2,6 +2,7 @@
 
 <?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -12,9 +13,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
    <children>
       <MenuBar>
         <menus>
@@ -28,6 +30,11 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Network">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Delete" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
@@ -39,43 +46,60 @@
          <items>
             <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
                <items>
-                  <Accordion maxWidth="280.0" minWidth="280.0">
-                    <panes>
-                      <TitledPane text="Google Maps">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                      <TitledPane text="Node Edit">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                      <TitledPane text="Save Topology">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                        <TitledPane text="Traffic Request">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                 <children>
-                                    <ComboBox fx:id="trafficMethodBox" layoutX="15.0" layoutY="14.0" onAction="#trafficMethodChoice" prefWidth="250.0" />
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
-                        <TitledPane text="Routing">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                 <children>
-                                    <ComboBox fx:id="routingMethodBox" layoutX="15.0" layoutY="14.0" onAction="#routingMethodChoice" prefWidth="250.0" />
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
-                    </panes>
-                  </Accordion>
+                  <SplitPane dividerPositions="0.9055472263868066" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="667.0" prefWidth="280.0">
+                    <items>
+                      <AnchorPane maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="612.0" prefWidth="280.0">
+                           <children>
+                              <Accordion maxWidth="616.0" minWidth="280.0" prefHeight="612.0" prefWidth="280.0">
+                                <panes>
+                                  <TitledPane text="Google Maps">
+                                    <content>
+                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                    </content>
+                                  </TitledPane>
+                                  <TitledPane text="Node Edit">
+                                    <content>
+                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                    </content>
+                                  </TitledPane>
+                                  <TitledPane text="Save Topology">
+                                    <content>
+                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                    </content>
+                                  </TitledPane>
+                                    <TitledPane text="Traffic Request">
+                                      <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                             <children>
+                                                <ComboBox fx:id="trafficMethodBox" layoutX="15.0" layoutY="14.0" onAction="#trafficMethodChoice" prefWidth="250.0" />
+                                             </children>
+                                          </AnchorPane>
+                                      </content>
+                                    </TitledPane>
+                                    <TitledPane prefHeight="536.0" prefWidth="280.0" text="Routing">
+                                      <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                             <children>
+                                                <ComboBox fx:id="routingMethodBox" layoutX="15.0" layoutY="14.0" onAction="#routingMethodChoice" prefWidth="250.0" />
+                                             </children>
+                                          </AnchorPane>
+                                      </content>
+                                    </TitledPane>
+                                </panes>
+                              </Accordion>
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="60.0" prefWidth="280.0">
+                           <children>
+                              <Button maxWidth="-Infinity" mnemonicParsing="false" prefHeight="60.0" prefWidth="280.0" text="Save Settings" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
                   <StackPane prefHeight="150.0" prefWidth="200.0">
                      <children>
                         <GoogleMapView fx:id="gmap" />
@@ -83,7 +107,7 @@
                   </StackPane>
                </items>
             </SplitPane>
-            <ScrollPane maxHeight="100.0" minHeight="100.0">
+            <ScrollPane maxHeight="100.0" minHeight="3.0" prefHeight="3.0" prefWidth="1238.0">
                <content>
                   <Text fx:id="consoleText" strokeType="OUTSIDE" strokeWidth="0.0" />
                </content>
