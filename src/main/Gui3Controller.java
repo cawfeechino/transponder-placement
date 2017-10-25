@@ -36,9 +36,11 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@Override
 	public void mapInitialized() {
 		MapOptions options = new MapOptions();
-
+		
 		options.center(new LatLong(47.606189, -122.335842)).zoomControl(true).zoom(12).overviewMapControl(false)
 				.mapType(MapTypeIdEnum.ROADMAP);
+		
+		LatLong sdNode = new LatLong(32.7157,117.1611);
 		GoogleMap map = gmap.createMap(options);
 	}
 	
