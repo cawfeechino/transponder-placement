@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="GMapsFX/GMapsFX-2.12.0.jar"/>
+=======
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_102"/>
+	<classpathentry kind="lib" path="C:/Users/drdan/Desktop/SeniorDesign/workspace/transponder-placement/GMapsFX/GMapsFX-2.12.0.jar"/>
+>>>>>>> origin/gui-Y
 	<classpathentry kind="output" path="bin"/>
 </classpath>

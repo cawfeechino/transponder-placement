@@ -89,7 +89,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     		String lattitude, lognitude;
     		lattitude = lat.getText();
     		lognitude = log.getText().toString();
-    		System.out.println(lattitude + "\t" + lognitude); 
+    		System.out.println(lattitude); 
     }
 
 	@Override

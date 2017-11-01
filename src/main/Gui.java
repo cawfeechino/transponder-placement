@@ -122,15 +122,12 @@ public class Gui extends Application{
 				Label ring = new Label("Ring 8");
 				Label mesh = new Label("Mesh 8");
 			topologyNav.getChildren().addAll(topologyForm);
+			topologyNav.setPadding(new Insets(15));
+			topologyNav.setAlignment(Pos.TOP_CENTER);
+			topologyNav.setSpacing(10);
+			topologyForm.setSpacing(10);
 		sideNav.getChildren().addAll(topologyNav);
 		sideNav.setPadding(new Insets(15));
-		topologyNav.setPadding(new Insets(15));
-		topologyNav.setAlignment(Pos.TOP_CENTER);
-		topologyNav.setSpacing(10);
-		topologyForm.setSpacing(10);
-	
-		
-		
 		
 		bTopology.setOnAction(new EventHandler<ActionEvent>() {
 			
