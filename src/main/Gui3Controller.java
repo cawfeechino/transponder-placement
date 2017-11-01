@@ -3,20 +3,13 @@ package main;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.javascript.object.*;
-import com.lynden.gmapsfx.service.directions.*;
+import com.lynden.gmapsfx.service.directions.Distance;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
-import com.sun.prism.paint.Color;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Observable;
+import java.util.HashMap;
 import java.util.ResourceBundle;
-
-import org.w3c.dom.events.MouseEvent;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -66,6 +59,22 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		LatLong ithaca= new LatLong(43.444,-76.5019);
 		LatLong collegePk= new LatLong(38.9897, -76.9378);
 		LatLong princeton= new LatLong(40.3487, -74.659);
+		
+		HashMap<Integer, LatLong> locations = new HashMap<>();
+		locations.put(0,sd);
+		locations.put(1, palo);
+		locations.put(2, seattle);
+		locations.put(3, slc);
+		locations.put(4, boulder);
+		locations.put(5, houston);
+		locations.put(6, lincoln);
+		locations.put(7, champaign);
+		locations.put(8, atlanta);
+		locations.put(9, pittsburgh);
+		locations.put(10, annArbor);
+		locations.put(11, ithaca);
+		locations.put(12, collegePk);
+		locations.put(13, princeton);		
 		
 		
 		LatLong[] sdANDpalo = new LatLong[] {sd,palo};
