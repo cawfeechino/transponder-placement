@@ -17,6 +17,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
@@ -174,7 +175,19 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     	consoleText.setText(console.toString());
     	System.out.println(trafficMethod);
     }
+    @FXML
+    private TextField lat;
     
+    @FXML
+    private TextField log;
+
+    @FXML
+    public void handleButtonAction() {
+    		String lattitude, lognitude;
+    		lattitude = lat.getText();
+    		lognitude = log.getText().toString();
+    		System.out.println(lattitude); 
+    }
 
     @FXML
     private ComboBox<String> routingMethodBox;
