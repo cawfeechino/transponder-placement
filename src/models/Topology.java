@@ -171,12 +171,12 @@ public class Topology {
 	 */
 	public void removeNode(int id){
 		if(removedNodes == null) removedNodes = new HashMap<>();
-		
+
 		// Store removed node in map of removed nodes
 		removedNodes.put(id, nodes.get(id));
 		nodes.remove(id);
 	}
-	
+
 	/**
 	 * Restores all removed nodes.
 	 */
