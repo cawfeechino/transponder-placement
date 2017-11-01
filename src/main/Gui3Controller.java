@@ -1,11 +1,14 @@
 package main;
 
+
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.javascript.object.*;
 import com.lynden.gmapsfx.service.directions.*;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.ResourceBundle;
 
@@ -13,9 +16,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-
+import models.NodeEditor;
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 	
 	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--", "random", "gaussian", "uniform");
@@ -23,6 +28,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private String trafficMethod;
 	private String routingMethod;
 	private StringBuilder console = new StringBuilder();
+	List<NodeEditor> newNode = new ArrayList<NodeEditor>();
 
 	@FXML
 	private ResourceBundle resources;
@@ -68,6 +74,23 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     
     @FXML
     private Text consoleText;
+    
+    @FXML 
+    private Button addButton;
+    
+    @FXML
+    private TextField lat;
+    
+    @FXML
+    private TextField log;
+    
+    @FXML
+    public void handleButtonAction() {
+    		String lattitude, lognitude;
+    		lattitude = lat.getText();
+    		lognitude = log.getText().toString();
+    		System.out.println(lattitude + "\t" + lognitude); 
+    }
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
