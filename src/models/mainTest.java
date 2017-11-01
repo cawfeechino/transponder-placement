@@ -15,7 +15,6 @@ public class mainTest {
         LatLong Intlocation = new LatLong(2.3,3.6);
         LatLong Endlocation = new LatLong(3.7,5.4);
 
-        ArrayList<>
 
 
 
