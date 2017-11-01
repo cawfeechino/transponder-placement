@@ -3,20 +3,13 @@ package main;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.javascript.object.*;
-import com.lynden.gmapsfx.service.directions.*;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
-import com.sun.prism.paint.Color;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Observable;
+import java.util.HashMap;
 import java.util.ResourceBundle;
-
-import org.w3c.dom.events.MouseEvent;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,6 +45,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
 				.mapType(MapTypeIdEnum.ROADMAP);
 		
+		GoogleMap map = gmap.createMap(options);
+		
 		LatLong sd = new LatLong(32.7157,-117.1611);
 		LatLong palo = new LatLong(37.4419, -122.143);
 		LatLong seattle = new LatLong(47.6062, -122.3321);
@@ -67,240 +62,101 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		LatLong collegePk= new LatLong(38.9897, -76.9378);
 		LatLong princeton= new LatLong(40.3487, -74.659);
 		
-		
-		LatLong[] sdANDpalo = new LatLong[] {sd,palo};
-		MVCArray mvcSdANDpalo = new MVCArray(sdANDpalo);
-		
-		LatLong[] sdANDsea = new LatLong[] {sd,seattle};
-		MVCArray mvcsdANDsea = new MVCArray(sdANDsea);
-		
-		LatLong[] paloANDsea = new LatLong[] {seattle,palo};
-		MVCArray mvcPaloANDSea = new MVCArray(paloANDsea);
-		
-		LatLong[] paloANDslc = new LatLong[] {slc,palo};
-		MVCArray mvcPaloANDslc = new MVCArray(paloANDslc);
-		
-		LatLong[] seattleANDchampaign = new LatLong[] {seattle,champaign};
-		MVCArray mvcSeattleANDchampaign = new MVCArray(seattleANDchampaign);
-		
-		LatLong[] sdANDhouston = new LatLong[] {sd,houston};
-		MVCArray mvcSdANDhouston = new MVCArray(sdANDhouston);
-		
-		LatLong[] slcANDboulder = new LatLong[] {slc,boulder};
-		MVCArray mvcSlcANDboulder = new MVCArray(slcANDboulder);
-		
-		LatLong[] slcANDannArbor = new LatLong[] {slc,annArbor};
-		MVCArray mvcSlcANDannArbor = new MVCArray(slcANDannArbor);
-		
-		LatLong[] boulderANDhouston = new LatLong[] {boulder,houston};
-		MVCArray mvcBoulderANDhouston = new MVCArray(boulderANDhouston);
-		
-		LatLong[] boulderANDlincoln = new LatLong[] {boulder,lincoln};
-		MVCArray mvcBoulderANDlincoln = new MVCArray(boulderANDlincoln);
-		
-		LatLong[] lincolnANDchampaign = new LatLong[] {lincoln,champaign};
-		MVCArray mvcLincolnANDchampaign = new MVCArray(lincolnANDchampaign);
-		
-		LatLong[] champaignANDpittsburgh = new LatLong[] {champaign,pittsburgh};
-		MVCArray mvcChampaignANDpittsburgh = new MVCArray(champaignANDpittsburgh);
-		
-		LatLong[] houstonANDatlnta = new LatLong[] {houston,atlanta};
-		MVCArray mvcHoustonANDatlnta = new MVCArray(houstonANDatlnta);
-
-		LatLong[] houstonANDcollegePk = new LatLong[] {houston,collegePk};
-		MVCArray mvcHoustonANDcollegePk = new MVCArray(houstonANDcollegePk);
-
-		LatLong[] atlantaANDpittsburgh = new LatLong[] {atlanta,pittsburgh};
-		MVCArray mvcAtlantaANDpittsburgh = new MVCArray(atlantaANDpittsburgh);
-		
-		LatLong[] annArborANDprinceton = new LatLong[] {annArbor,princeton};
-		MVCArray mvcAnnArborANDprinceton = new MVCArray(annArborANDprinceton);
-
-		LatLong[] annArborANDithica = new LatLong[] {annArbor,ithaca};
-		MVCArray mvcAnnArborANDithica = new MVCArray(annArborANDithica);
-
-		LatLong[] pittsburghANDithaca = new LatLong[] {pittsburgh,ithaca};
-		MVCArray mvcPittsburghANDithaca = new MVCArray(pittsburghANDithaca);
-
-		LatLong[] pittsburghANDprinceton = new LatLong[] {pittsburgh,princeton};
-		MVCArray mvcPittsburghANDprinceton= new MVCArray(pittsburghANDprinceton);
-		
-		LatLong[] collegePkANDithaca = new LatLong[] {collegePk,ithaca};
-		MVCArray mvcCollegePkANDithaca= new MVCArray(collegePkANDithaca);
-		
-		LatLong[] collegePkANDprinceton = new LatLong[] {collegePk,princeton};
-		MVCArray mvcCollegePkANDprinceton= new MVCArray(collegePkANDprinceton);
-		
+		HashMap<Integer, LatLong> locations = new HashMap<>();
+		locations.put(0,sd);
+		locations.put(1, palo);
+		locations.put(2, seattle);
+		locations.put(3, slc);
+		locations.put(4, boulder);
+		locations.put(5, houston);
+		locations.put(6, lincoln);
+		locations.put(7, champaign);
+		locations.put(8, atlanta);
+		locations.put(9, pittsburgh);
+		locations.put(10, annArbor);
+		locations.put(11, ithaca);
+		locations.put(12, collegePk);
+		locations.put(13, princeton);
 		
 		//markers location icon
+		for(int i =0; i < locations.size(); i++) {
+			MarkerOptions markerOptions = new MarkerOptions();
+			markerOptions.position(locations.get(i));
+			Marker marker = new Marker(markerOptions);
+			map.addMarker(marker);
+		}		
 		
-		MarkerOptions sdOption = new MarkerOptions();
-		sdOption.position(sd);
-		Marker sdMarker = new Marker(sdOption);
+		ArrayList<LatLong[]> connections = new ArrayList<>();
 		
-		MarkerOptions paloOption = new MarkerOptions();
-		paloOption.position(palo);
-		Marker paloMarker = new Marker(paloOption);
-		
-		MarkerOptions seattleOption = new MarkerOptions();
-		seattleOption.position(seattle);
-		Marker seattleMarker = new Marker(seattleOption);
-		
-		MarkerOptions slcOption = new MarkerOptions();
-		slcOption.position(slc);
-		Marker slcMarker = new Marker(slcOption);
-		
-		MarkerOptions boulderOption = new MarkerOptions();
-		boulderOption.position(boulder);
-		Marker boulderMarker = new Marker(boulderOption);
-		
-		MarkerOptions lincolnOption = new MarkerOptions();
-		lincolnOption.position(lincoln);
-		Marker lincolnMarker = new Marker(lincolnOption);
-		
-		MarkerOptions houstonOption = new MarkerOptions();
-		houstonOption.position(houston);
-		Marker houstonMarker = new Marker(houstonOption);
-		
-		MarkerOptions champaignOption = new MarkerOptions();
-		champaignOption.position(champaign);
-		Marker champaignMarker = new Marker(champaignOption);
-		
-		MarkerOptions annArborOption = new MarkerOptions();
-		annArborOption.position(annArbor);
-		Marker annArborMarker = new Marker(annArborOption);
-		
-		MarkerOptions pittsburghOption = new MarkerOptions();
-		pittsburghOption.position(pittsburgh);
-		Marker pittsburghMarker = new Marker(pittsburghOption);
-		
-		MarkerOptions ithacaOption = new MarkerOptions();
-		ithacaOption.position(ithaca);
-		Marker ithacaMarker = new Marker(ithacaOption);
-		
-		MarkerOptions collegePkOption = new MarkerOptions();
-		collegePkOption.position(collegePk);
-		Marker collegePkMarker = new Marker(collegePkOption);
-		
-		MarkerOptions princetonOption = new MarkerOptions();
-		princetonOption.position(princeton);
-		Marker princetonMarker = new Marker(princetonOption);
-		
-		MarkerOptions atlantaOption = new MarkerOptions();
-		atlantaOption.position(atlanta);
-		Marker atlantaMarker = new Marker(atlantaOption);
-		
-//		ArrayList<Marker> markers = new ArrayList<>();
-//		markers.add(Collections.addAll(c, elements)l(sdMarker,paloMarker));
-		
-		
-		
-		
-		PolylineOptions sdTOpaloOpts = new PolylineOptions().path(mvcSdANDpalo).strokeColor("black").strokeWeight(2);
-		Polyline sdTOPalo = new Polyline(sdTOpaloOpts);
-		
-		PolylineOptions sdTOseattleOpts = new PolylineOptions().path(mvcsdANDsea).strokeColor("black").strokeWeight(2);
-		Polyline sdTOseattle = new Polyline(sdTOseattleOpts);
-		
-		PolylineOptions sdTOhoustonOpts = new PolylineOptions().path(mvcSdANDhouston).strokeColor("black").strokeWeight(2);
-		Polyline sdTOhouston = new Polyline(sdTOhoustonOpts);
-		
-		PolylineOptions paloTOSeattleOpts = new PolylineOptions().path(mvcPaloANDSea).strokeColor("black").strokeWeight(2);
-		Polyline paloTOseattle = new Polyline(paloTOSeattleOpts);
-		
-		PolylineOptions paloTOslcOpts = new PolylineOptions().path(mvcPaloANDslc).strokeColor("black").strokeWeight(2);
-		Polyline paloTOslc = new Polyline(paloTOslcOpts);
-		
-		PolylineOptions seattleTOchampaignOpts = new PolylineOptions().path(mvcSeattleANDchampaign).strokeColor("black").strokeWeight(2);
-		Polyline seattleTOchampaign = new Polyline(seattleTOchampaignOpts);
-
-		PolylineOptions slcTOboulderOpts = new PolylineOptions().path(mvcSlcANDboulder).strokeColor("black").strokeWeight(2);
-		Polyline slcTOboulder = new Polyline(slcTOboulderOpts);
-		
-		PolylineOptions slcTOannArborOpts = new PolylineOptions().path(mvcSlcANDannArbor).strokeColor("black").strokeWeight(2);
-		Polyline slcTOannArbor = new Polyline(slcTOannArborOpts);
-		
-		PolylineOptions boulderTOhoustonOpts = new PolylineOptions().path(mvcBoulderANDhouston).strokeColor("black").strokeWeight(2);
-		Polyline boulderTOhouston = new Polyline(boulderTOhoustonOpts);
-		
-		PolylineOptions boulderTOlincolnOpts = new PolylineOptions().path(mvcBoulderANDlincoln).strokeColor("black").strokeWeight(2);
-		Polyline boulderTOlincoln = new Polyline(boulderTOlincolnOpts);
-		
-		PolylineOptions houstonTOcollegePkOpts = new PolylineOptions().path(mvcHoustonANDcollegePk).strokeColor("black").strokeWeight(2);
-		Polyline houstonTOcollegePk = new Polyline(houstonTOcollegePkOpts);
-
-		PolylineOptions houstonTOAtlantaOpts = new PolylineOptions().path(mvcHoustonANDatlnta).strokeColor("black").strokeWeight(2);
-		Polyline houstonTOAtlanta = new Polyline(houstonTOAtlantaOpts);
-		
-		PolylineOptions lincolnTOchampaignOpts = new PolylineOptions().path(mvcLincolnANDchampaign).strokeColor("black").strokeWeight(2);
-		Polyline lincolnTOchampaign = new Polyline(lincolnTOchampaignOpts);
-		
-		PolylineOptions champaignTOpittsburghOpts = new PolylineOptions().path(mvcChampaignANDpittsburgh).strokeColor("black").strokeWeight(2);
-		Polyline champaignTOpittsburgh = new Polyline(champaignTOpittsburghOpts);
-		
-		PolylineOptions annArborTOithacaOpts = new PolylineOptions().path(mvcAnnArborANDithica).strokeColor("black").strokeWeight(2);
-		Polyline annArborTOithaca = new Polyline(annArborTOithacaOpts);
-		
-		PolylineOptions annArborTOprincetonOpts = new PolylineOptions().path(mvcAnnArborANDprinceton).strokeColor("black").strokeWeight(2);
-		Polyline annArborTOprinceton = new Polyline(annArborTOprincetonOpts);
-
-		PolylineOptions atlantaTOpittsburgOpts = new PolylineOptions().path(mvcAtlantaANDpittsburgh).strokeColor("black").strokeWeight(2);
-		Polyline atlantaTOpittsburg = new Polyline(atlantaTOpittsburgOpts);
-		
-		PolylineOptions pittsburghTOithacaOpts = new PolylineOptions().path(mvcPittsburghANDithaca).strokeColor("black").strokeWeight(2);
-		Polyline pittsburghTOithaca = new Polyline(pittsburghTOithacaOpts);
-		
-		PolylineOptions pittsburghTOprincetonOpts = new PolylineOptions().path(mvcPittsburghANDprinceton).strokeColor("black").strokeWeight(2);
-		Polyline pittsburghTOprinceton = new Polyline(pittsburghTOprincetonOpts);
-		
-		PolylineOptions collegePKTOithacaOpts = new PolylineOptions().path(mvcCollegePkANDithaca).strokeColor("black").strokeWeight(2);
-		Polyline collegePKTOithaca = new Polyline(collegePKTOithacaOpts);
-		
-		PolylineOptions collegePKTOprincetonOpts = new PolylineOptions().path(mvcCollegePkANDprinceton).strokeColor("black").strokeWeight(2);
-		Polyline collegePKTOprinceton = new Polyline(collegePKTOprincetonOpts);
-
-		
-		
-		
-		GoogleMap map = gmap.createMap(options);
+		LatLong[] sdANDpalo = new LatLong[] {sd,palo};
+		connections.add(sdANDpalo);
 				
+		LatLong[] sdANDsea = new LatLong[] {sd,seattle};
+		connections.add(sdANDsea);
 		
-		map.addMarker(sdMarker);
-		map.addMarker(paloMarker);
-		map.addMarker(seattleMarker);
-		map.addMarker(slcMarker);
-		map.addMarker(lincolnMarker);
-		map.addMarker(boulderMarker);
-		map.addMarker(houstonMarker);
-		map.addMarker(champaignMarker);
-		map.addMarker(atlantaMarker);
-		map.addMarker(pittsburghMarker);
-		map.addMarker(annArborMarker);
-		map.addMarker(collegePkMarker);
-		map.addMarker(ithacaMarker);
-		map.addMarker(princetonMarker);
+		LatLong[] paloANDsea = new LatLong[] {seattle,palo};
+		connections.add(paloANDsea);
 		
-		map.addMapShape((MapShape) sdTOPalo);
-		map.addMapShape((MapShape) sdTOseattle);
-		map.addMapShape((MapShape) sdTOhouston);
-		map.addMapShape((MapShape) paloTOseattle);
-		map.addMapShape((MapShape) paloTOslc);
-		map.addMapShape((MapShape) seattleTOchampaign);
-		map.addMapShape((MapShape) slcTOannArbor);
-		map.addMapShape((MapShape) slcTOboulder);
-		map.addMapShape((MapShape) boulderTOhouston);
-		map.addMapShape((MapShape) boulderTOlincoln);
-		map.addMapShape((MapShape) houstonTOAtlanta);
-		map.addMapShape((MapShape) houstonTOcollegePk);
-		map.addMapShape((MapShape) lincolnTOchampaign);
-		map.addMapShape((MapShape) champaignTOpittsburgh);
-		map.addMapShape((MapShape) atlantaTOpittsburg);
-		map.addMapShape((MapShape) annArborTOithaca);
-		map.addMapShape((MapShape) annArborTOprinceton);
-		map.addMapShape((MapShape) pittsburghTOithaca);
-		map.addMapShape((MapShape) pittsburghTOprinceton);
-		map.addMapShape((MapShape) collegePKTOithaca);
-		map.addMapShape((MapShape) collegePKTOprinceton);
+		LatLong[] paloANDslc = new LatLong[] {slc,palo};
+		connections.add(paloANDslc);
+		
+		LatLong[] seattleANDchampaign = new LatLong[] {seattle,champaign};
+		connections.add(seattleANDchampaign);
+		
+		LatLong[] sdANDhouston = new LatLong[] {sd,houston};
+		connections.add(sdANDhouston);
+		
+		LatLong[] slcANDboulder = new LatLong[] {slc,boulder};
+		connections.add(slcANDboulder);
+		
+		LatLong[] slcANDannArbor = new LatLong[] {slc,annArbor};
+		connections.add(slcANDannArbor);
+		
+		LatLong[] boulderANDhouston = new LatLong[] {boulder,houston};
+		connections.add(boulderANDhouston);
+		
+		LatLong[] boulderANDlincoln = new LatLong[] {boulder,lincoln};
+		connections.add(boulderANDlincoln);
+		
+		LatLong[] lincolnANDchampaign = new LatLong[] {lincoln,champaign};
+		connections.add(lincolnANDchampaign);
+		
+		LatLong[] champaignANDpittsburgh = new LatLong[] {champaign,pittsburgh};
+		connections.add(champaignANDpittsburgh);
+		
+		LatLong[] houstonANDatlnta = new LatLong[] {houston,atlanta};
+		connections.add(houstonANDatlnta);
+		
+		LatLong[] houstonANDcollegePk = new LatLong[] {houston,collegePk};
+		connections.add(houstonANDcollegePk);
+		
+		LatLong[] atlantaANDpittsburgh = new LatLong[] {atlanta,pittsburgh};
+		connections.add(atlantaANDpittsburgh);
+		
+		LatLong[] annArborANDprinceton = new LatLong[] {annArbor,princeton};
+		connections.add(annArborANDprinceton);
+		
+		LatLong[] annArborANDithica = new LatLong[] {annArbor,ithaca};
+		connections.add(annArborANDithica);
+		
+		LatLong[] pittsburghANDithaca = new LatLong[] {pittsburgh,ithaca};
+		connections.add(pittsburghANDithaca);
+		
+		LatLong[] pittsburghANDprinceton = new LatLong[] {pittsburgh,princeton};
+		connections.add(pittsburghANDprinceton);
+		
+		LatLong[] collegePkANDithaca = new LatLong[] {collegePk,ithaca};
+		connections.add(collegePkANDithaca);
+		
+		LatLong[] collegePkANDprinceton = new LatLong[] {collegePk,princeton};
+		connections.add(collegePkANDprinceton);
+
+		for(int i =0; i <connections.size(); i++) {
+			MVCArray mvcArray = new MVCArray(connections.get(i));
+			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2);
+			Polyline polyline = new Polyline(polylineOptions);
+			map.addMapShape((MapShape) polyline);
+		}
 		
 			
 		
