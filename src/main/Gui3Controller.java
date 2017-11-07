@@ -54,6 +54,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@FXML
 	private GoogleMapView gmap;
 	
+	private LatLong LatLong;
 
 	@Override
 	public void mapInitialized() {
@@ -211,7 +212,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     		
     		lattitude = Double.parseDouble(lat.getText().toString());
     		lognitude = Double.parseDouble(log.getText().toString());
+
     		
+
     		nodeEditor entry = new nodeEditor(lattitude,lognitude);
     		entries.add(entry);
     		try {
