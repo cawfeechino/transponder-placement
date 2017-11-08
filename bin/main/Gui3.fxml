@@ -2,6 +2,7 @@
 
 <?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -46,11 +47,6 @@
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                         </content>
                       </TitledPane>
-                      <TitledPane text="Node Edit">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
                       <TitledPane text="Save Topology">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
@@ -74,6 +70,15 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
+                        <TitledPane text="Run Simulator">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Button fx:id="runSimulator" layoutX="114.0" layoutY="14.0" mnemonicParsing="false" onAction="#runSimulator" text="Run" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
                     </panes>
                   </Accordion>
                   <StackPane prefHeight="150.0" prefWidth="200.0">
@@ -83,7 +88,7 @@
                   </StackPane>
                </items>
             </SplitPane>
-            <ScrollPane maxHeight="100.0" minHeight="100.0">
+            <ScrollPane maxHeight="100.0" minHeight="100.0" vvalue="1.0">
                <content>
                   <Text fx:id="consoleText" strokeType="OUTSIDE" strokeWidth="0.0" />
                </content>
