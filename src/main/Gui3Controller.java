@@ -174,11 +174,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			MVCArray mvcArray = new MVCArray(connections.get(i));
 			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2);
 			Polyline polyline = new Polyline(polylineOptions);
-			map.addMapShape((MapShape) polyline);
+			map.addMapShape(polyline);
 		}
-		
-			
-		
 	}
 	
     @FXML
@@ -204,38 +201,36 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     private TableColumn<nodeEditor, Double> lat_list, log_list; 
     @FXML
     private TableView<nodeEditor> nodeList;
-    
+
+	@FXML
+    public void exportButtonAction(){
+		try {
+
+			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
+			for(nodeEditor e : entries) {
+				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
+
+			}
+			out.close();
+		}catch(IOException e1) {
+			System.out.println("Error during reading/writing");
+		}
+
+	}
 
     @FXML
     public void handleButtonAction() {
     		double lattitude, lognitude;
     		
-    		lattitude = Double.parseDouble(lat.getText().toString());
-    		lognitude = Double.parseDouble(log.getText().toString());
-
-    		
-
+    		lattitude = Double.parseDouble(lat.getText());
+    		lognitude = Double.parseDouble(log.getText());
     		nodeEditor entry = new nodeEditor(lattitude,lognitude);
     		entries.add(entry);
-    		try {
-    			
-    			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-    			for(nodeEditor e : entries) {
-    				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
-    				
-    				
-    			}
-    			
-    			out.close();
-    		}catch(IOException e1) {
-    	        System.out.println("Error during reading/writing");
-    		   }
 	    		nodeList.getItems().add(new nodeEditor(lattitude, lognitude));
 	    		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
 	    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+
 	    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
-    		
-    		
     		
     }
 
@@ -244,8 +239,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     
     @FXML
     private void routingMethodChoice() {
-    	if(!routingMethodBox.getValue().toString().equals("--select a routing method--")) {
-    		routingMethod = routingMethodBox.getValue().toString();
+    	if(!routingMethodBox.getValue().equals("--select a routing method--")) {
+    		routingMethod = routingMethodBox.getValue();
     	}
     	System.out.println(routingMethod);
     }

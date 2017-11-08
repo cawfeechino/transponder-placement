@@ -10,6 +10,8 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -17,11 +19,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.cell.*?> 
-<?import javafx.collections.*?> 
-<?import fxmltableview.*?> 
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
    <children>
@@ -29,6 +26,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" onAction="#exportButtonAction" text="Export " />
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
@@ -101,6 +99,7 @@
                                        <Label layoutX="130.0" layoutY="401.0" text="N" />
                                        <Label layoutX="195.0" layoutY="401.0" text="E" />
                                        <Button layoutX="217.0" layoutY="378.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="add" />
+                                       <Button layoutX="102.0" layoutY="312.0" mnemonicParsing="false" onAction="#exportButtonAction" text="Save" />
                                     </children>
                           </AnchorPane>
                           
