@@ -76,6 +76,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			@Override
 			public void handle(GMapMouseEvent arg0) {
 				// TODO Auto-generated method stub
+				System.out.println(arg0.getLatLong());
 				MarkerOptions markerOptions = new MarkerOptions();
 				markerOptions.position(arg0.getLatLong());
 				Marker marker = new Marker(markerOptions);
