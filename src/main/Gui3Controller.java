@@ -2,6 +2,10 @@ package main;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.javascript.event.GMapMouseEvent;
+import com.lynden.gmapsfx.javascript.event.MapStateEventType;
+import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
+import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
@@ -25,6 +29,8 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -32,6 +38,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import models.nodeEditor;
+
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 	
 	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--", "random", "gaussian", "uniform");
@@ -58,12 +65,26 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@Override
 	public void mapInitialized() {
 		MapOptions options = new MapOptions();
-		
 		//lat: 38.873959 lng: -98.517483 zoom:4
 		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
 				.mapType(MapTypeIdEnum.ROADMAP);
 		
 		GoogleMap map = gmap.createMap(options);
+		
+		map.addMouseEventHandler(null, UIEventType.click, new MouseEventHandler() {
+			
+			@Override
+			public void handle(GMapMouseEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println(arg0.getLatLong());
+				LatLong newpoint = arg0.getLatLong();
+				
+				MarkerOptions markerOptions = new MarkerOptions();
+				markerOptions.position(arg0.getLatLong());
+				Marker marker = new Marker(markerOptions);
+				map.addMarker(marker);				
+			}
+		});
 		
 		LatLong sd = new LatLong(32.7157,-117.1611);
 		LatLong palo = new LatLong(37.4419, -122.143);
@@ -95,6 +116,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		locations.put(11, ithaca);
 		locations.put(12, collegePk);
 		locations.put(13, princeton);
+		
 		
 		//markers location icon
 		for(int i =0; i < locations.size(); i++) {
@@ -169,14 +191,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		LatLong[] collegePkANDprinceton = new LatLong[] {collegePk,princeton};
 		connections.add(collegePkANDprinceton);
 
-		for(int i =0; i <connections.size(); i++) {
-			MVCArray mvcArray = new MVCArray(connections.get(i));
+		for(LatLong[] pair : connections) {
+			MVCArray mvcArray = new MVCArray(pair);
 			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2);
 			Polyline polyline = new Polyline(polylineOptions);
 			map.addMapShape((MapShape) polyline);
-		}
-		
-			
+		}			
 		
 	}
 	
