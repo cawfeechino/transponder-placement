@@ -37,7 +37,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
-import models.nodeEditor;
+import models.MapNode;
 
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 	
@@ -47,8 +47,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private String trafficMethod;
 	private String routingMethod;
 	private StringBuilder console = new StringBuilder();
-	List<nodeEditor> entries = new ArrayList<nodeEditor>();
-	private TableView<nodeEditor> table = new TableView<nodeEditor>();
+	List<MapNode> entries = new ArrayList<MapNode>();
+	private TableView<MapNode> table = new TableView<MapNode>();
 	
 	
 
@@ -61,6 +61,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@FXML
 	private GoogleMapView gmap;
 	
+	 @FXML
+	 private TextField lat;
+    
+	 @FXML
+	 private TextField log;
+	 
+	 @FXML
+	 private TableColumn<MapNode, Integer> nodes; 
+	 
+	 @FXML
+	 private TableColumn<MapNode, Double> lat_list, log_list; 
+	 
+	 @FXML
+	 private TableView<MapNode> nodeList;
+
 
 	@Override
 	public void mapInitialized() {
@@ -76,11 +91,19 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			@Override
 			public void handle(GMapMouseEvent arg0) {
 				// TODO Auto-generated method stub
-				System.out.println(arg0.getLatLong());
+				LatLong location = arg0.getLatLong();
+				System.out.println(location);
 				MarkerOptions markerOptions = new MarkerOptions();
-				markerOptions.position(arg0.getLatLong());
+				markerOptions.position(location);
 				Marker marker = new Marker(markerOptions);
-				map.addMarker(marker);				
+				map.addMarker(marker);	
+				
+				
+				
+				nodeList.getItems().add(new MapNode(location.getLatitude(), location.getLongitude()));
+				nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
+	    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+	    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
 			}
 		});
 		
@@ -116,12 +139,18 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		locations.put(13, princeton);
 		
 		
+		
+		
 		//markers location icon
 		for(int i =0; i < locations.size(); i++) {
 			MarkerOptions markerOptions = new MarkerOptions();
 			markerOptions.position(locations.get(i));
 			Marker marker = new Marker(markerOptions);
 			map.addMarker(marker);
+			nodeList.getItems().add(new MapNode(locations.get(i).getLatitude(), locations.get(i).getLongitude()));
+			nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
+    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
 		}		
 		
 		ArrayList<LatLong[]> connections = new ArrayList<>();
@@ -209,18 +238,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     	console.append(trafficMethod + "\n");
     	consoleText.setText(console.toString());
     	System.out.println(trafficMethod);
-    }
-    @FXML
-    private TextField lat;
-    
-    @FXML
-    private TextField log;
-    @FXML
-    private TableColumn<nodeEditor, Integer> nodes; 
-    @FXML
-    private TableColumn<nodeEditor, Double> lat_list, log_list; 
-    @FXML
-    private TableView<nodeEditor> nodeList;
+    }  
     
 
     @FXML
@@ -230,22 +248,20 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     		lattitude = Double.parseDouble(lat.getText().toString());
     		lognitude = Double.parseDouble(log.getText().toString());
     		
-    		nodeEditor entry = new nodeEditor(lattitude,lognitude);
+    		MapNode entry = new MapNode(lattitude,lognitude);
     		entries.add(entry);
     		try {
     			
     			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-    			for(nodeEditor e : entries) {
+    			for(MapNode e : entries) {
     				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
-    				
-    				
     			}
     			
     			out.close();
     		}catch(IOException e1) {
     	        System.out.println("Error during reading/writing");
     		   }
-	    		nodeList.getItems().add(new nodeEditor(lattitude, lognitude));
+	    		nodeList.getItems().add(new MapNode(lattitude, lognitude));
 	    		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
 	    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
 	    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
