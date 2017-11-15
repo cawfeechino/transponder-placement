@@ -10,10 +10,19 @@ import com.lynden.gmapsfx.javascript.object.*;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,16 +32,25 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+import models.nodeEditor;
 
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 	
 	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--", "random", "gaussian", "uniform");
 	ObservableList<String> routingMethodList = FXCollections.observableArrayList("--select a routing method--", "SPF", "LUF", "MUF", "OPT", "MUX", "Hybrid");
+	
 	private String trafficMethod;
 	private String routingMethod;
 	private StringBuilder console = new StringBuilder();
+	List<nodeEditor> entries = new ArrayList<nodeEditor>();
+	private TableView<nodeEditor> table = new TableView<nodeEditor>();
+	
+	
 
 	@FXML
 	private ResourceBundle resources;
@@ -196,13 +214,43 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
     
     @FXML
     private TextField log;
+    @FXML
+    private TableColumn<nodeEditor, Integer> nodes; 
+    @FXML
+    private TableColumn<nodeEditor, Double> lat_list, log_list; 
+    @FXML
+    private TableView<nodeEditor> nodeList;
+    
 
     @FXML
     public void handleButtonAction() {
-    		String lattitude, lognitude;
-    		lattitude = lat.getText();
-    		lognitude = log.getText().toString();
-    		System.out.println(lattitude); 
+    		double lattitude, lognitude;
+    		
+    		lattitude = Double.parseDouble(lat.getText().toString());
+    		lognitude = Double.parseDouble(log.getText().toString());
+    		
+    		nodeEditor entry = new nodeEditor(lattitude,lognitude);
+    		entries.add(entry);
+    		try {
+    			
+    			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
+    			for(nodeEditor e : entries) {
+    				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
+    				
+    				
+    			}
+    			
+    			out.close();
+    		}catch(IOException e1) {
+    	        System.out.println("Error during reading/writing");
+    		   }
+	    		nodeList.getItems().add(new nodeEditor(lattitude, lognitude));
+	    		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
+	    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+	    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+    		
+    		
+    		
     }
 
     @FXML
@@ -226,5 +274,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		trafficMethodBox.getSelectionModel().select(0);
 		routingMethodBox.setItems(routingMethodList);
 		routingMethodBox.getSelectionModel().select(0);
+		
+	    
 	}
 }
