@@ -7,6 +7,11 @@ import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
+import com.lynden.gmapsfx.service.geocoding.GeocoderAddressComponent;
+import com.lynden.gmapsfx.service.geocoding.GeocoderAddressComponentType;
+import com.lynden.gmapsfx.service.geocoding.GeocoderGeometry;
+import com.lynden.gmapsfx.service.geocoding.GeocoderRequest;
+import com.lynden.gmapsfx.service.geocoding.GeocoderUtils;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 
@@ -62,12 +67,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private GoogleMapView gmap;
 
 	@FXML
-	private TextField lat;
-
-	@FXML
-	private TextField log;
-
-	@FXML
 	private TableColumn<MapNode, Integer> nodes;
 
 	@FXML
@@ -78,6 +77,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 	@FXML
 	private TitledPane nodeEdit;
+	
+	@FXML
+	private TextField lat, log, startNorth, startEast, endNorth, endEast;
 	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
@@ -91,46 +93,23 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 		GoogleMap map = gmap.createMap(options);
 
-		ArrayList<LatLong> locations = getLocations();
-		
-		
 		//toolip for the marker optional
 		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
 		InfoWindow infoWindow = new InfoWindow();
+		
+		
+		ArrayList<LatLong> locations = getLocations();
+		
 		// markers location icon
 		for (LatLong point : locations) {
-			
-			MarkerOptions markerOptions = new MarkerOptions();
-			markerOptions.position(point);
-			Marker marker = new Marker(markerOptions);
-			map.addMarker(marker);
-			map.addUIEventHandler(marker, UIEventType.click, new UIEventHandler() {
-				
-				@Override
-				public void handle(JSObject arg0) {
-					// TODO when click marker do something
-					
-					infoWindowOptions.content("description of marker");
-					infoWindow.setOptions(infoWindowOptions);
-					
-					infoWindow.open(map,marker);
-					LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
-					System.out.println(ll);
-									
-				}
-			});
-		
-			nodeList.getItems().add(new MapNode(point.getLatitude(),point.getLongitude()));
-			nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
-			lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
-			log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+			addMarker(point, map, infoWindow, infoWindowOptions);
 		}	
 
 		ArrayList<LatLong[]> connections = getConnections();
 		
 		for (LatLong[] pair : connections) {
 			MVCArray mvcArray = new MVCArray(pair);
-			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2);
+			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
 			Polyline polyline = new Polyline(polylineOptions);
 			map.addMapShape((MapShape) polyline);
 		}
@@ -154,20 +133,18 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				if(shortest > limit){
 					Alert alert = new Alert(AlertType.CONFIRMATION);
 					alert.setHeaderText("Please confirm your input.");
-					
+					lat.setText(format.format(location.getLatitude()));
+					log.setText(format.format(location.getLongitude()));
 					Optional<ButtonType> result = alert.showAndWait();
 
 					if(result.get() == ButtonType.OK) {
-					
-						MarkerOptions markerOptions = new MarkerOptions();
-						markerOptions.position(location);
-						Marker marker = new Marker(markerOptions);
-						map.addMarker(marker);
-
-						nodeList.getItems().add(new MapNode(location.getLatitude(), location.getLongitude()));
-						nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
-						lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
-						log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+						addMarker(location, map, infoWindow, infoWindowOptions);
+						lat.clear();
+						log.clear();
+					}
+					else {
+						lat.clear();
+						log.clear();
 					}
 				}
 				
@@ -241,6 +218,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 	}
 	
+	
 	public ArrayList<LatLong> getLocations(){
 		ArrayList<LatLong> locations = new ArrayList<>();
 		String path;
@@ -262,6 +240,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		
 		return locations;
 	}
+	
+	
 	
 	public ArrayList<LatLong[]> getConnections(){
 		ArrayList<LatLong[]> connections = new ArrayList<>();
@@ -288,6 +268,98 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		return connections;
 	}
 	
+	
+	//TODO change path when user saves new nsfnet keep default 
+	public void writeLocations(ArrayList<LatLong> locations) {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter("src/assets/location.txt"));
+			for (LatLong location : locations) {
+				out.println(location.getLatitude() + " "+location.getLongitude());
+			}
+
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void writeConnections(ArrayList<LatLong[]> connections) {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter("src/assets/location.txt"));
+			for (LatLong[] pair : connections) {
+				out.println(pair[0].getLatitude() +','+pair[0].getLongitude()+" "
+							+ pair[1].getLatitude()+','+pair[1].getLongitude()+" "
+							+ format.format(pair[0].distanceFrom(pair[1])));
+			}
+
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addMarker(LatLong point, GoogleMap map, InfoWindow infoWindow, InfoWindowOptions infoWindowOptions) {
+		MarkerOptions markerOptions = new MarkerOptions();
+		markerOptions.position(point);
+		Marker marker = new Marker(markerOptions);
+		map.addMarker(marker);
+		
+		map.addUIEventHandler(marker, UIEventType.click, new UIEventHandler() {
+			
+			@Override
+			public void handle(JSObject arg0) {
+				// TODO when click marker do something
+				
+				infoWindowOptions.content("description of marker");
+				infoWindow.setOptions(infoWindowOptions);
+				
+				infoWindow.open(map,marker);
+				
+				//LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
+				
+				
+			}
+		});
+		
+		map.addUIEventHandler(marker, UIEventType.dblclick, new UIEventHandler() {
+			
+			@Override
+			public void handle(JSObject arg0) {
+				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
+				//TODO check if user inputs location manually that will ruin code
+
+				//first user double click to set up connection to second dbclick
+				if(startNorth.getText().equals("")&startEast.getText().equals("")) {
+					startNorth.setText(format.format(ll.getLatitude()));
+					startEast.setText(format.format(ll.getLongitude()));
+					
+				}else {
+					endNorth.setText(format.format(ll.getLatitude()));
+					endEast.setText(format.format(ll.getLongitude()));
+					
+					LatLong[] pair = new LatLong[]{new LatLong(Double.parseDouble(startNorth.getText()), Double.parseDouble(startEast.getText())),
+													new LatLong(Double.parseDouble(endNorth.getText()), Double.parseDouble(endEast.getText()))};
+					MVCArray mvcArray = new MVCArray(pair);
+					PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
+					Polyline polyline = new Polyline(polylineOptions);
+					map.addMapShape((MapShape) polyline);
+					startNorth.clear();
+					startEast.clear();
+					endEast.clear();
+					endNorth.clear();
+				}
+				
+			}
+		});
+		
+		nodeList.getItems().add(new MapNode(point.getLatitude(),point.getLongitude()));
+		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
+		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+	}
+	
+	
+	//default locations and pairs for nsfnet
 	public ArrayList<LatLong> locations() {
 		LatLong sd = new LatLong(32.7157, -117.1611);
 		LatLong palo = new LatLong(37.4419, -122.143);

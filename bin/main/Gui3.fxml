@@ -84,20 +84,20 @@
                                              <Font size="10.0" />
                                           </font>
                                        </Label>
-                                       <TextField layoutX="72.0" layoutY="401.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="130.0" layoutY="406.0" text="N" />
-                                       <TextField layoutX="143.0" layoutY="401.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="199.0" layoutY="406.0" text="E" />
+                                       <TextField fx:id="startNorth" layoutX="72.0" layoutY="401.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="152.0" layoutY="406.0" text="N" />
+                                       <TextField fx:id="startEast" layoutX="171.0" layoutY="401.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="249.0" layoutY="406.0" text="E" />
                                        <Label layoutX="23.0" layoutY="458.0" text="End Point">
                                           <font>
                                              <Font size="10.0" />
                                           </font>
                                        </Label>
-                                       <TextField layoutX="71.0" layoutY="452.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <TextField layoutX="143.0" layoutY="452.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="130.0" layoutY="457.0" text="N" />
-                                       <Label layoutX="199.0" layoutY="457.0" text="E" />
-                                       <Button layoutX="209.0" layoutY="424.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="Add" />
+                                       <TextField fx:id="endNorth" layoutX="71.0" layoutY="452.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <TextField fx:id="endEast" layoutX="171.0" layoutY="452.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="152.0" layoutY="457.0" text="N" />
+                                       <Label layoutX="249.0" layoutY="457.0" text="E" />
+                                       <Button layoutX="138.0" layoutY="487.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="Add" />
                                     </children>
                           </AnchorPane>
                           
