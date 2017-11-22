@@ -5,26 +5,26 @@ import java.text.DecimalFormat;
 public class MapNode {
 	static int numberOfEntries = 0;
 	private int id;
-	private double lattitude;
+	private double latitude;
 	private double longitude;
 	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
-	public MapNode(double lattitude, double longitude) {
+	public MapNode(double latitude, double longitude) {
 		super();
 		
-		this.lattitude = Double.parseDouble(format.format(lattitude));
+		this.latitude = Double.parseDouble(format.format(latitude));
 		this.longitude = Double.parseDouble(format.format(longitude));
 		this.id = ++numberOfEntries;
 	}
 
 
-	public double getLattitude() {
-		return lattitude;
+	public double getLatitude() {
+		return latitude;
 	}
 
-	public void setLattitude(double lattitude) {
-		this.lattitude = lattitude;
+	public void setLatitude(double lattitude) {
+		this.latitude = lattitude;
 	}
 
 	public double getLongitude() {

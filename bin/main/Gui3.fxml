@@ -66,11 +66,11 @@
                                        <TextField fx:id="lat" layoutX="87.0" layoutY="36.0" prefHeight="27.0" prefWidth="112.0" />
                                        <Label layoutX="19.0" layoutY="73.0" text="Longitude" />
                                        <TextField fx:id="log" layoutX="87.0" layoutY="68.0" prefHeight="27.0" prefWidth="112.0" />
-                                       <Button layoutX="209.0" layoutY="51.0" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="27.0" prefWidth="61.0" text="ADD" />
+                                       <Button fx:id="addLocation" layoutX="209.0" layoutY="51.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="61.0" text="ADD" />
                                        <TableView fx:id="nodeList" layoutX="15.0" layoutY="120.0" prefHeight="219.0" prefWidth="247.0">
                                          <columns>
                                            <TableColumn id="nodes" fx:id="nodes" prefWidth="45.0" style="-fx-alignment: center;" text="Nodes" />
-                                           <TableColumn id="lat_list" fx:id="lat_list" prefWidth="92.5" text="Lattitude" />
+                                           <TableColumn id="lat_list" fx:id="lat_list" prefWidth="92.5" text="Latitude" />
                                             <TableColumn id="log_list" fx:id="log_list" prefWidth="92.5" text="Longitude" />
                                          </columns>
                                        </TableView>
@@ -97,7 +97,7 @@
                                        <TextField fx:id="endEast" layoutX="171.0" layoutY="452.0" prefHeight="27.0" prefWidth="75.0" />
                                        <Label layoutX="152.0" layoutY="457.0" text="N" />
                                        <Label layoutX="249.0" layoutY="457.0" text="E" />
-                                       <Button layoutX="138.0" layoutY="487.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="Add" />
+                                       <Button fx:id="addConnection" layoutX="138.0" layoutY="487.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="Add" />
                                     </children>
                           </AnchorPane>
                           

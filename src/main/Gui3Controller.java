@@ -7,11 +7,11 @@ import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
-import com.lynden.gmapsfx.service.geocoding.GeocoderAddressComponent;
-import com.lynden.gmapsfx.service.geocoding.GeocoderAddressComponentType;
-import com.lynden.gmapsfx.service.geocoding.GeocoderGeometry;
-import com.lynden.gmapsfx.service.geocoding.GeocoderRequest;
-import com.lynden.gmapsfx.service.geocoding.GeocoderUtils;
+
+import com.lynden.gmapsfx.service.geocoding.GeocoderStatus;
+import com.lynden.gmapsfx.service.geocoding.GeocodingResult;
+import com.lynden.gmapsfx.service.geocoding.GeocodingService;
+import com.lynden.gmapsfx.service.geocoding.GeocodingServiceCallback;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 
@@ -23,22 +23,21 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import models.MapNode;
@@ -55,7 +54,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private String routingMethod;
 	private StringBuilder console = new StringBuilder();
 
-	List<MapNode> entries = new ArrayList<MapNode>();
 
 	@FXML
 	private ResourceBundle resources;
@@ -81,75 +79,161 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@FXML
 	private TextField lat, log, startNorth, startEast, endNorth, endEast;
 	
+	@FXML
+	private Button addLocation, addConnection;
+	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
+	
+	private GeocodingService geocodingService;
+	
+	private final String us = "United States";
+	
+	private ArrayList<LatLong> locations;
+	
+	private ArrayList<LatLong[]> connections;
+
 	
 	@Override
 	public void mapInitialized() {
 		nodeEdit.setExpanded(true);
+		geocodingService = new GeocodingService();
 		
 		MapOptions options = new MapOptions();
 		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
-				.mapType(MapTypeIdEnum.ROADMAP);
+				.mapType(MapTypeIdEnum.ROADMAP).mapTypeControl(false).streetViewControl(false);
 
 		GoogleMap map = gmap.createMap(options);
-
 		//toolip for the marker optional
 		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
 		InfoWindow infoWindow = new InfoWindow();
 		
 		
-		ArrayList<LatLong> locations = getLocations();
+		locations = getLocations();
 		
 		// markers location icon
 		for (LatLong point : locations) {
 			addMarker(point, map, infoWindow, infoWindowOptions);
 		}	
 
-		ArrayList<LatLong[]> connections = getConnections();
+		connections = getConnections();
 		
 		for (LatLong[] pair : connections) {
 			MVCArray mvcArray = new MVCArray(pair);
 			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
 			Polyline polyline = new Polyline(polylineOptions);
 			map.addMapShape((MapShape) polyline);
+			
 		}
 		
+		
 		//adding a new point
-		map.addMouseEventHandler(null, UIEventType.click, new MouseEventHandler() {
+		map.addMouseEventHandler(map, UIEventType.rightclick, new MouseEventHandler() {
 
 			@Override
 			public void handle(GMapMouseEvent arg0) {
 				LatLong location = arg0.getLatLong();
 				Double shortest = Double.MAX_VALUE;
 				Double limit = 96560.64; //meters t0 miles(60)
-				
+
 				for(LatLong point : locations){
 					if(shortest > point.distanceFrom(location)) {
 						shortest = point.distanceFrom(location);
 					}
 				}
-				
-				// cannot have to markers 60 miles form each other 
-				if(shortest > limit){
-					Alert alert = new Alert(AlertType.CONFIRMATION);
-					alert.setHeaderText("Please confirm your input.");
+				if(shortest> limit) {
 					lat.setText(format.format(location.getLatitude()));
 					log.setText(format.format(location.getLongitude()));
-					Optional<ButtonType> result = alert.showAndWait();
-
-					if(result.get() == ButtonType.OK) {
-						addMarker(location, map, infoWindow, infoWindowOptions);
-						lat.clear();
-						log.clear();
-					}
-					else {
-						lat.clear();
-						log.clear();
-					}
-				}
 				
+					geocodingService.reverseGeocode(location.getLatitude(), location.getLongitude(), new GeocodingServiceCallback() {
+						
+						@Override
+						public void geocodedResultsReceived(GeocodingResult[] arg0, GeocoderStatus arg1) {
+							if(arg1.equals(GeocoderStatus.OK)) {
+								if(arg0[arg0.length-1].getFormattedAddress().equals(us)) {
+									addMarker(location, map, infoWindow, infoWindowOptions);
+								}  									
+							} 
+							lat.clear();
+							log.clear();
+						}
+						
+					});
+				}
 			}
 		});
+		
+		
+		//manually add stuff
+				addLocation.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent event) {
+						String nlat = format.format(Double.parseDouble(lat.getText()));
+						String nlng = format.format(Double.parseDouble(log.getText()));
+						LatLong newPoint = new LatLong(Double.parseDouble(nlat), Double.parseDouble(nlng));
+						
+							addMarker(newPoint, map, infoWindow, infoWindowOptions);
+					}
+				});
+				
+				addConnection.setOnAction(new EventHandler<ActionEvent>() {
+					
+					@Override
+					public void handle(ActionEvent arg0) {
+					
+						boolean valid = false;
+						LatLong[] pair = new LatLong[]{new LatLong(Double.parseDouble(startNorth.getText()), Double.parseDouble(startEast.getText())),
+														new LatLong(Double.parseDouble(endNorth.getText()), Double.parseDouble(endEast.getText()))};
+						
+						
+						
+						List<MapNode> items = nodeList.getItems();
+
+//						for(int i = 0; i <items.size(); i++) {
+//							boolean r = items.get(i).getLatitude()==pair[0].getLatitude();
+//							System.out.println(items.get(i).getLatitude() + " = " + pair[0].getLatitude() +" "+ r);
+//							r=format.format(items.get(i).getLongitude()).equals(format.format(pair[0].getLongitude()));
+//							System.out.println(items.get(i).getLongitude() + " = " + format.format(pair[0].getLongitude()) +" "+ r);
+//							r = items.get(i).getLatitude()==pair[1].getLatitude();
+//							System.out.println(items.get(i).getLatitude() + " = " + pair[1].getLatitude() +" "+ r);
+//							r=format.format(items.get(i).getLongitude()).equals(format.format(pair[1].getLongitude()));
+//							System.out.println(items.get(i).getLongitude() + " = " + format.format(pair[1].getLongitude()) +" "+ r);
+//							
+//						}
+						
+						//the format of the longitude gives an error so compare the string using the format of above(format) to see results uncomment above code
+						for(int i =0; i< items.size(); i++) {
+							if(items.get(i).getLatitude()==pair[0].getLatitude()&format.format(items.get(i).getLongitude()).equals(format.format(pair[0].getLongitude()))) {
+								valid=true;
+								break;
+							}
+						}
+						
+						for(int i =0; i< items.size(); i++) {
+							if(items.get(i).getLatitude()==pair[1].getLatitude()&format.format(items.get(i).getLongitude()).equals(format.format(pair[1].getLongitude()))) {
+								valid=true;
+								break;
+							}
+						}
+						
+						
+						if(valid) {
+							MVCArray mvcArray = new MVCArray(pair);
+							PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
+							Polyline polyline = new Polyline(polylineOptions);
+							map.addMapShape((MapShape) polyline);
+							startNorth.clear();
+							startEast.clear();
+							endEast.clear();
+							endNorth.clear();
+						}else {
+							startNorth.clear();
+							startEast.clear();
+							endEast.clear();
+							endNorth.clear();
+						}
+					}
+				});
 		
 	}
 
@@ -164,34 +248,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		console.append(trafficMethod + "\n");
 		consoleText.setText(console.toString());
 		System.out.println(trafficMethod);
-	}
-
-
-	@FXML
-	public void handleButtonAction() {
-		double lattitude, lognitude;
-
-		lattitude = Double.parseDouble(lat.getText().toString());
-		lognitude = Double.parseDouble(log.getText().toString());
-
-		MapNode entry = new MapNode(lattitude, lognitude);
-		entries.add(entry);
-		try {
-
-			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-			for (MapNode e : entries) {
-				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
-			}
-
-			out.close();
-		} catch (IOException e1) {
-			System.out.println("Error during reading/writing");
-		}
-		nodeList.getItems().add(new MapNode(lattitude, lognitude));
-		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
-		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
-		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
-
 	}
 
 	@FXML
@@ -308,16 +364,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			
 			@Override
 			public void handle(JSObject arg0) {
-				// TODO when click marker do something
 				
-				infoWindowOptions.content("description of marker");
-				infoWindow.setOptions(infoWindowOptions);
-				
-				infoWindow.open(map,marker);
-				
-				//LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
-				
-				
+				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
+				geocodingService.reverseGeocode(ll.getLatitude(), ll.getLongitude(), new GeocodingServiceCallback() {
+					
+					@Override
+					public void geocodedResultsReceived(GeocodingResult[] arg0, GeocoderStatus arg1) {						
+						String[] results = arg0[arg0.length-3].getFormattedAddress().split(",");
+						
+						String display = results[0] + ", " + results[1].substring(0, 3); 
+						
+						infoWindowOptions.content(display);
+						infoWindow.setOptions(infoWindowOptions);
+						infoWindow.open(map,marker);						
+					}
+				});				
 			}
 		});
 		
@@ -327,7 +388,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			public void handle(JSObject arg0) {
 				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
 				//TODO check if user inputs location manually that will ruin code
-
+				
+				
 				//first user double click to set up connection to second dbclick
 				if(startNorth.getText().equals("")&startEast.getText().equals("")) {
 					startNorth.setText(format.format(ll.getLatitude()));
@@ -354,7 +416,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		
 		nodeList.getItems().add(new MapNode(point.getLatitude(),point.getLongitude()));
 		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
-		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+		lat_list.setCellValueFactory(new PropertyValueFactory<>("latitude"));
 		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
 	}
 	
