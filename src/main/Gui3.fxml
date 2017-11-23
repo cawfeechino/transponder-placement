@@ -131,9 +131,9 @@
                                     <Button layoutX="106.0" layoutY="493.0" mnemonicParsing="false" onAction="#saveFile" prefHeight="30.0" prefWidth="65.0" text="Save" />
                                     <TableView fx:id="saveNodes" layoutX="16.0" layoutY="35.0" prefHeight="200.0" prefWidth="247.0">
                                        <columns>
-                                          <TableColumn id="nodes" fx:id="columnNode" prefWidth="45.0" style="-fx-alignment: center;" text="Nodes" />
-                                          <TableColumn id="lat_list" fx:id="columnlat" prefWidth="92.5" text="Latitude" />
-                                          <TableColumn id="log_list" fx:id="columnlng" prefWidth="92.5" text="Longitude" />
+                                          <TableColumn fx:id="columnNode" prefWidth="45.0" text="Nodes" />
+                                          <TableColumn fx:id="columnlat" prefWidth="92.5" text="Latitude" />
+                                          <TableColumn fx:id="columnlng" prefWidth="92.5" text="Longitude" />
                                        </columns>
                                     </TableView>
                                  </children></AnchorPane>

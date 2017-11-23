@@ -69,10 +69,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private TableColumn<MapNode, Integer> nodes,columnNode;
 
 	@FXML
-	private TableColumn<MapNode, Double> lat_list, log_list;
-	
-	@FXML
-	private TableColumn<MapNode, Double> columnLat, columnLng;
+	private TableColumn<MapNode, Double> lat_list, log_list, columnLat, columnLng;
 	
 	@FXML
 	private TableColumn<LatLong, Double> start, end, distance;
@@ -262,10 +259,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 	@FXML
 	public void displaySave() {
+	
 		saveNodes.getItems().addAll(nodeList.getItems());
 		columnNode.setCellValueFactory(new PropertyValueFactory<>("id"));
-		columnLng.setCellValueFactory(new PropertyValueFactory<>("longitude"));
 		columnLat.setCellValueFactory(new PropertyValueFactory<>("latitude"));
+		columnLng.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+		
 	}
 	
 	@FXML
@@ -454,7 +453,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
 		lat_list.setCellValueFactory(new PropertyValueFactory<>("latitude"));
 		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
-		
 	}
 	
 	
