@@ -104,9 +104,39 @@
                         </content>
                         </ScrollPane>
                       </TitledPane>
-                      <TitledPane text="Save Topology">
+                      <TitledPane onContextMenuRequested="#displaySave" onMouseClicked="#displaySave" text="Save Topology">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="28.0" layoutY="14.0" text="Node List">
+                                       <font>
+                                          <Font size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <TableView fx:id="saveLinks" layoutX="16.0" layoutY="279.0" prefHeight="200.0" prefWidth="247.0">
+                                       <columns>
+                                          <TableColumn id="nodes" fx:id="start" prefWidth="83.5" style="-fx-alignment: center;" text="LatLng" />
+                                          <TableColumn id="lat_list" prefWidth="83.5" text="Latlng" />
+                                          <TableColumn id="log_list" prefWidth="65.0" text="Distance" />
+                                       </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                    <Label layoutX="28.0" layoutY="248.0" text=" Node Links ">
+                                       <font>
+                                          <Font size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <Button layoutX="106.0" layoutY="493.0" mnemonicParsing="false" onAction="#saveFile" prefHeight="30.0" prefWidth="65.0" text="Save" />
+                                    <TableView fx:id="saveNodes" layoutX="16.0" layoutY="35.0" prefHeight="200.0" prefWidth="247.0">
+                                       <columns>
+                                          <TableColumn id="nodes" fx:id="columnNode" prefWidth="45.0" style="-fx-alignment: center;" text="Nodes" />
+                                          <TableColumn id="lat_list" fx:id="columnlat" prefWidth="92.5" text="Latitude" />
+                                          <TableColumn id="log_list" fx:id="columnlng" prefWidth="92.5" text="Longitude" />
+                                       </columns>
+                                    </TableView>
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                         <TitledPane text="Traffic Request">

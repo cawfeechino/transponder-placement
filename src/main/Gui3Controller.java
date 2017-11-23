@@ -35,9 +35,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableView.TableViewFocusModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -68,13 +66,19 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private GoogleMapView gmap;
 
 	@FXML
-	private TableColumn<MapNode, Integer> nodes;
+	private TableColumn<MapNode, Integer> nodes,columnNode;
 
 	@FXML
 	private TableColumn<MapNode, Double> lat_list, log_list;
+	
+	@FXML
+	private TableColumn<MapNode, Double> columnLat, columnLng;
+	
+	@FXML
+	private TableColumn<LatLong, Double> start, end, distance;
 
 	@FXML
-	private TableView<MapNode> nodeList;
+	private TableView<MapNode> nodeList, saveNodes, saveLinks;
 
 	@FXML
 	private TitledPane nodeEdit;
@@ -94,6 +98,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private ArrayList<LatLong> locations;
 	
 	private ArrayList<LatLong[]> connections;
+	
 
 	
 	@Override
@@ -143,7 +148,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		});
 		
 		
-		
 		//adding a new point
 		map.addMouseEventHandler(map, UIEventType.rightclick, new MouseEventHandler() {
 
@@ -182,19 +186,19 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		
 		
 		//manually add stuff
-				addLocation.setOnAction(new EventHandler<ActionEvent>() {
-					
-					@Override
-					public void handle(ActionEvent event) {
-						String nlat = format.format(Double.parseDouble(lat.getText()));
-						String nlng = format.format(Double.parseDouble(log.getText()));
-						LatLong newPoint = new LatLong(Double.parseDouble(nlat), Double.parseDouble(nlng));
-						
-							addMarker(newPoint, map, infoWindow, infoWindowOptions);
-					}
-				});
+		addLocation.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				String nlat = format.format(Double.parseDouble(lat.getText()));
+				String nlng = format.format(Double.parseDouble(log.getText()));
+				LatLong newPoint = new LatLong(Double.parseDouble(nlat), Double.parseDouble(nlng));
 				
-				addConnection.setOnAction(new EventHandler<ActionEvent>() {
+					addMarker(newPoint, map, infoWindow, infoWindowOptions);
+			}
+		});
+		
+		addConnection.setOnAction(new EventHandler<ActionEvent>() {
 					
 					@Override
 					public void handle(ActionEvent arg0) {
@@ -231,6 +235,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							if(items.get(i).getLatitude()==pair[1].getLatitude()&format.format(items.get(i).getLongitude()).equals(format.format(pair[1].getLongitude()))) {
 								valid=true;
 								break;
+							}else {
+								valid=false;
 							}
 						}
 						
@@ -252,9 +258,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 						}
 					}
 				});
-		
 	}
 
+	@FXML
+	public void displaySave() {
+		saveNodes.getItems().addAll(nodeList.getItems());
+		columnNode.setCellValueFactory(new PropertyValueFactory<>("id"));
+		columnLng.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+		columnLat.setCellValueFactory(new PropertyValueFactory<>("latitude"));
+	}
+	
+	@FXML
+	public void saveFile() {
+		
+	}
+	
 	@FXML
 	private ComboBox<String> trafficMethodBox;
 
@@ -292,7 +310,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 	}
 	
-	
 	public ArrayList<LatLong> getLocations(){
 		ArrayList<LatLong> locations = new ArrayList<>();
 		String path;
@@ -309,12 +326,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		
+		}		
 		return locations;
 	}
-	
 	
 	
 	public ArrayList<LatLong[]> getConnections(){
@@ -342,8 +356,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		return connections;
 	}
 	
-	
 	//TODO change path when user saves new nsfnet keep default 
+	
 	public void writeLocations(ArrayList<LatLong> locations) {
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter("src/assets/location.txt"));
@@ -356,6 +370,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			e.printStackTrace();
 		}
 	}
+	
 	
 	public void writeConnections(ArrayList<LatLong[]> connections) {
 		try {
@@ -439,10 +454,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
 		lat_list.setCellValueFactory(new PropertyValueFactory<>("latitude"));
 		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+		
 	}
 	
 	
 	//default locations and pairs for nsfnet
+	
 	//i dont use these methods but i dont want to delete it just in case the file get deleted or somthing so i have this as back up
 	public ArrayList<LatLong> locations() {
 		LatLong sd = new LatLong(32.7157, -117.1611);
@@ -477,6 +494,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		locations.add(princeton);
 		return locations;
 	}
+	
 	
 	public ArrayList<LatLong[]> locationConnection() {
 		LatLong sd = new LatLong(32.7157, -117.1611);
