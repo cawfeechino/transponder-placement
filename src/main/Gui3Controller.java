@@ -35,10 +35,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewFocusModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import models.MapNode;
 import netscape.javascript.JSObject;
@@ -124,6 +127,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			map.addMapShape((MapShape) polyline);
 			
 		}
+		
+		nodeList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				if(startNorth.getText().equals("")||startEast.getText().equals("")) {
+					startNorth.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLatitude()));
+					startEast.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLongitude()));
+				}else {
+					endNorth.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLatitude()));
+					endEast.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLongitude()));
+				}
+			}
+		});
+		
 		
 		
 		//adding a new point
@@ -366,6 +384,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			public void handle(JSObject arg0) {
 				
 				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
+		
 				geocodingService.reverseGeocode(ll.getLatitude(), ll.getLongitude(), new GeocodingServiceCallback() {
 					
 					@Override
@@ -376,9 +395,11 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 						
 						infoWindowOptions.content(display);
 						infoWindow.setOptions(infoWindowOptions);
-						infoWindow.open(map,marker);						
+						infoWindow.open(map,marker);	
+						
 					}
-				});				
+				});	
+			
 			}
 		});
 		
@@ -422,6 +443,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	
 	
 	//default locations and pairs for nsfnet
+	//i dont use these methods but i dont want to delete it just in case the file get deleted or somthing so i have this as back up
 	public ArrayList<LatLong> locations() {
 		LatLong sd = new LatLong(32.7157, -117.1611);
 		LatLong palo = new LatLong(37.4419, -122.143);
