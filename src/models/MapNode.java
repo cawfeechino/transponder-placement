@@ -1,17 +1,18 @@
 package models;
 
-public class nodeEditor {
+public class MapNode {
 	static int numberOfEntries = 0;
 	private int id;
 	private double lattitude;
 	private double longitude;
 	
-	public nodeEditor(double lattitude, double longitude) {
+	public MapNode(double lattitude, double longitude) {
 		super();
 		this.lattitude = lattitude;
 		this.longitude = longitude;
 		this.id = ++numberOfEntries;
 	}
+	
 
 	public double getLattitude() {
 		return lattitude;
