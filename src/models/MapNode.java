@@ -2,14 +2,27 @@ package models;
 
 import java.text.DecimalFormat;
 
+import com.lynden.gmapsfx.javascript.object.LatLong;
+
+
 public class MapNode {
 	static int numberOfEntries = 0;
 	private int id;
 	private double latitude;
 	private double longitude;
+	private LatLong start;
+	private LatLong end;
+	private double distance;
 	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
+	public MapNode(LatLong start, LatLong end, double distance) {
+		super();
+		this.start = start;
+		this.end = end;
+		this.distance = Double.parseDouble(format.format(distance/1000));
+	}
+
 	public MapNode(double latitude, double longitude) {
 		super();
 		
@@ -18,6 +31,17 @@ public class MapNode {
 		this.id = ++numberOfEntries;
 	}
 
+	public LatLong getStart() {
+		return start;
+	}
+
+	public LatLong getEnd() {
+		return end;
+	}
+
+	public double getDistance() {
+		return distance;
+	}
 
 	public double getLatitude() {
 		return latitude;
@@ -37,4 +61,5 @@ public class MapNode {
 	public int getId() {
 		return id;
 	}
+
 }
