@@ -22,9 +22,7 @@ public class Link {
 	}
 	
 	public static int generateRandomBandwidth(int maxBandwidth) {
-		
 		return 1 + (int)(Math.random() * (maxBandwidth + 1));  
-		
 	}
 	
 	public static int generateRandomBandwidthUniform(int maxBandwidth){
