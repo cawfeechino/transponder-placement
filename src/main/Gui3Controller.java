@@ -29,10 +29,14 @@ import java.util.Scanner;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -42,6 +46,8 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import metrics.TransponderMetric;
 import models.MapNode;
 import netscape.javascript.JSObject;
 
@@ -312,6 +318,43 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			routingMethod = routingMethodBox.getValue().toString();
 		}
 		System.out.println(routingMethod);
+	}
+	
+	@FXML
+	private Button runSimulator;
+
+	@FXML
+	private void runSimulator(ActionEvent event) {
+		console.append("running simulator\n");
+		consoleText.setText(console.toString());
+		Task<Void> simulator = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				String[] args = { trafficMethod.toUpperCase(), routingMethod };
+				TransponderMetric.main(args);
+				return null;
+			}
+		};
+		simulator.setOnSucceeded(workerStateEvent -> {
+			console.append("simulator finished\n");
+			consoleText.setText(console.toString());
+			try {
+				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Graph.fxml"));
+				Parent root = (Parent) fxmlLoader.load();
+				Stage stage = new Stage();
+				stage.setTitle("Simulator Results");
+				stage.setScene(new Scene(root));
+				stage.show();
+			} catch (Exception e) {
+
+			}
+		});
+		simulator.setOnFailed(workerStateEvent -> {
+			console.append("Did you set a traffic request method or routing method?\n");
+			consoleText.setText(console.toString());
+		});
+		Thread run = new Thread(simulator);
+		run.start();
 	}
 
 	@FXML
