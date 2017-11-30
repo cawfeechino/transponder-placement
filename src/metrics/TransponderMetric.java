@@ -22,7 +22,7 @@ public class TransponderMetric{
 	public TransponderMetric()throws IOException{}
 	
 	//take in topology type, bandwidth distribution type, routing type, threshold, custom request file path
-	public void start(NetworkTopology topology, int threshold) throws IOException{;
+	public void start(BANDWIDTH_DISTRIBUTION distribution, String routingType) throws IOException{
 		//getResultsSimple(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
 
 		//getResultsNSFNET(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);
@@ -36,7 +36,10 @@ public class TransponderMetric{
 	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,90);
 	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP,NetworkTopology.HYPERCUBE16,110);
 		//getResultsHypercube16(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);		
-		getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP, topology, threshold, false);
+	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP, topology, threshold, false);
+	//	 getResultsTestTwo(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, int hybridThreshold, boolean customRequest)
+		getResultsTestTwo(distribution, EMBEDDING_METHOD.BACKUP, NetworkTopology.MESH8, routingType, 80, 100, 50, false);
+	//	simulator.getTranspondersODU(100,i, distributionType.name().toLowerCase(), 0, (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests);
 
 	}
 	
@@ -116,7 +119,7 @@ public class TransponderMetric{
 			sc.close();
 		}
 
-		for(int i = 20; i <= 40; i+=20){
+		for(int i = 20; i <= 80; i+=20){
 
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
@@ -322,8 +325,11 @@ public class TransponderMetric{
 		return transponders;
 	}
 	
-	public static void main(String args[]) throws IOException{
-		
-		new TransponderMetric().start(NetworkTopology.valueOf(args[0]), Integer.parseInt(args[1]));
+	public static void main(String args[]) {
+		try {
+			new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.valueOf(args[0]), args[1]);
+		} catch (Exception e){
+			System.out.println(e);
+		}
 	}
 }
