@@ -102,8 +102,8 @@ public class GraphController implements Initializable {
 		}
 		resultsGraph.getData().addAll(series);
 	}
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> origin/gui
+
+
+
