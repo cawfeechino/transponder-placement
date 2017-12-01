@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.lynden.gmapsfx.GoogleMapView?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -116,12 +117,12 @@
                                     <TableView fx:id="saveLinks" layoutX="16.0" layoutY="279.0" prefHeight="200.0" prefWidth="247.0">
                                        <columns>
                                           <TableColumn id="nodes" fx:id="start" prefWidth="83.5" style="-fx-alignment: center;" text="LatLng" />
-                                          <TableColumn id="lat_list" prefWidth="83.5" text="Latlng" />
-                                          <TableColumn id="log_list" prefWidth="65.0" text="Distance" />
+                                          <TableColumn id="lat_list" fx:id="end" prefWidth="83.5" text="Latlng" />
+                                          <TableColumn id="log_list" fx:id="distance" prefWidth="65.0" text="Distance" />
                                        </columns>
-                                       <columnResizePolicy>
-                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                       </columnResizePolicy>
+                                       <cursor>
+                                          <Cursor fx:constant="DEFAULT" />
+                                       </cursor>
                                     </TableView>
                                     <Label layoutX="28.0" layoutY="248.0" text=" Node Links ">
                                        <font>
@@ -153,6 +154,15 @@
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <ComboBox fx:id="routingMethodBox" layoutX="15.0" layoutY="14.0" onAction="#routingMethodChoice" prefWidth="250.0" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+						<TitledPane text="Run Simulator">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Button fx:id="runSimulator" layoutX="114.0" layoutY="14.0" mnemonicParsing="false" onAction="#runSimulator" text="Run" />
                                  </children>
                               </AnchorPane>
                           </content>
