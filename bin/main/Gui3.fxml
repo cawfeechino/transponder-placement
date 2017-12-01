@@ -10,6 +10,8 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -17,11 +19,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.cell.*?> 
-<?import javafx.collections.*?> 
-<?import fxmltableview.*?> 
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
    <children>
@@ -55,7 +52,7 @@
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                         </content>
                       </TitledPane>
-                      <TitledPane text="Node Edit">
+                      <TitledPane fx:id="nodeEdit" text="Node Edit">
                       	<ScrollPane>
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="529.0" prefWidth="280.0">
@@ -69,47 +66,77 @@
                                        <TextField fx:id="lat" layoutX="87.0" layoutY="36.0" prefHeight="27.0" prefWidth="112.0" />
                                        <Label layoutX="19.0" layoutY="73.0" text="Longitude" />
                                        <TextField fx:id="log" layoutX="87.0" layoutY="68.0" prefHeight="27.0" prefWidth="112.0" />
-                                       <Button layoutX="209.0" layoutY="51.0" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="27.0" prefWidth="61.0" text="ADD" />
-                                       <TableView fx:id="nodeList" layoutX="14.0" layoutY="103.0" prefHeight="200.0" prefWidth="234.0">
+                                       <Button fx:id="addLocation" layoutX="209.0" layoutY="51.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="61.0" text="ADD" />
+                                       <TableView fx:id="nodeList" layoutX="15.0" layoutY="120.0" prefHeight="219.0" prefWidth="247.0">
                                          <columns>
-                                           <TableColumn id="nodes" fx:id="nodes" prefWidth="47.0" text="Nodes" />
-                                           <TableColumn id="lat_list" fx:id="lat_list" prefWidth="89.0" text="Lattitude" />
-                                            <TableColumn id="log_list" fx:id="log_list" prefWidth="97.0" text="Longitude" />
+                                           <TableColumn id="nodes" fx:id="nodes" prefWidth="45.0" style="-fx-alignment: center;" text="Nodes" />
+                                           <TableColumn id="lat_list" fx:id="lat_list" prefWidth="92.5" text="Latitude" />
+                                            <TableColumn id="log_list" fx:id="log_list" prefWidth="92.5" text="Longitude" />
                                          </columns>
                                        </TableView>
-                                       <Label layoutX="21.0" layoutY="342.0" text="Edge Editor">
+                                       <Label layoutX="27.0" layoutY="369.0" text="Edge Editor">
                                           <font>
                                              <Font size="15.0" />
                                           </font>
                                        </Label>
-                                       <Label layoutX="21.0" layoutY="368.0" text="Start Point">
+                                       <Label layoutX="19.0" layoutY="407.0" text="Start Point">
                                           <font>
                                              <Font size="10.0" />
                                           </font>
                                        </Label>
-                                       <TextField layoutX="74.0" layoutY="361.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="130.0" layoutY="366.0" text="N" />
-                                       <TextField layoutX="143.0" layoutY="361.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="199.0" layoutY="366.0" text="E" />
-                                       <Label layoutX="22.0" layoutY="403.0" text="End Point">
+                                       <TextField fx:id="startNorth" layoutX="72.0" layoutY="401.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="152.0" layoutY="406.0" text="N" />
+                                       <TextField fx:id="startEast" layoutX="171.0" layoutY="401.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="249.0" layoutY="406.0" text="E" />
+                                       <Label layoutX="23.0" layoutY="458.0" text="End Point">
                                           <font>
                                              <Font size="10.0" />
                                           </font>
                                        </Label>
-                                       <TextField layoutX="74.0" layoutY="396.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <TextField layoutX="143.0" layoutY="396.0" prefHeight="27.0" prefWidth="53.0" />
-                                       <Label layoutX="130.0" layoutY="401.0" text="N" />
-                                       <Label layoutX="195.0" layoutY="401.0" text="E" />
-                                       <Button layoutX="217.0" layoutY="378.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="add" />
+                                       <TextField fx:id="endNorth" layoutX="71.0" layoutY="452.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <TextField fx:id="endEast" layoutX="171.0" layoutY="452.0" prefHeight="27.0" prefWidth="75.0" />
+                                       <Label layoutX="152.0" layoutY="457.0" text="N" />
+                                       <Label layoutX="249.0" layoutY="457.0" text="E" />
+                                       <Button fx:id="addConnection" layoutX="138.0" layoutY="487.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="45.0" text="Add" />
                                     </children>
                           </AnchorPane>
                           
                         </content>
                         </ScrollPane>
                       </TitledPane>
-                      <TitledPane text="Save Topology">
+                      <TitledPane onContextMenuRequested="#displaySave" onMouseClicked="#displaySave" text="Save Topology">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="28.0" layoutY="14.0" text="Node List">
+                                       <font>
+                                          <Font size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <TableView fx:id="saveLinks" layoutX="16.0" layoutY="279.0" prefHeight="200.0" prefWidth="247.0">
+                                       <columns>
+                                          <TableColumn id="nodes" fx:id="start" prefWidth="83.5" style="-fx-alignment: center;" text="LatLng" />
+                                          <TableColumn id="lat_list" prefWidth="83.5" text="Latlng" />
+                                          <TableColumn id="log_list" prefWidth="65.0" text="Distance" />
+                                       </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                    <Label layoutX="28.0" layoutY="248.0" text=" Node Links ">
+                                       <font>
+                                          <Font size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <Button layoutX="106.0" layoutY="493.0" mnemonicParsing="false" onAction="#saveFile" prefHeight="30.0" prefWidth="65.0" text="Save" />
+                                    <TableView fx:id="saveNodes" layoutX="16.0" layoutY="35.0" prefHeight="200.0" prefWidth="247.0">
+                                       <columns>
+                                          <TableColumn fx:id="columnNode" prefWidth="45.0" text="Nodes" />
+                                          <TableColumn fx:id="columnlat" prefWidth="92.5" text="Latitude" />
+                                          <TableColumn fx:id="columnlng" prefWidth="92.5" text="Longitude" />
+                                       </columns>
+                                    </TableView>
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                         <TitledPane text="Traffic Request">
