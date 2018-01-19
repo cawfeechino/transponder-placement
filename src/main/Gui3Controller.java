@@ -2,6 +2,7 @@ package main;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.MapReadyListener;
 import com.lynden.gmapsfx.javascript.event.GMapMouseEvent;
 import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventHandler;
@@ -9,10 +10,10 @@ import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
 
 
-import com.lynden.gmapsfx.service.geocoding.GeocoderStatus;
-import com.lynden.gmapsfx.service.geocoding.GeocodingResult;
+
 import com.lynden.gmapsfx.service.geocoding.GeocodingService;
-import com.lynden.gmapsfx.service.geocoding.GeocodingServiceCallback;
+import com.lynden.gmapsfx.shapes.Circle;
+import com.lynden.gmapsfx.shapes.CircleOptions;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 
@@ -23,7 +24,8 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -39,18 +41,24 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import metrics.TransponderMetric;
+import models.EventHandlers;
 import models.MapNode;
 import netscape.javascript.JSObject;
+import sun.net.www.MeteredStream;
 
+// all form of distance are in meters NOTE*
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
 
 	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--",
@@ -75,22 +83,13 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private TableColumn<MapNode, Integer> nodes,columnNode;
 
 	@FXML
-	private TableColumn<MapNode, Double> lat_list, log_list;
-	
-	@FXML
-	private TableColumn<MapNode, Double> columnlat, columnlng;
+	private TableColumn<MapNode, Double> lat_list, log_list, columnlat, columnlng, distance;
 	
 	@FXML
 	private TableColumn<MapNode, LatLong> start, end;
 	
 	@FXML
-	private TableColumn<MapNode, Double> distance;
-
-	@FXML
-	private TableView<MapNode> nodeList, saveNodes;
-	
-	@FXML
-	private TableView<MapNode> saveLinks;
+	private TableView<MapNode> nodeList, saveNodes, saveLinks;
 
 	@FXML
 	private TitledPane nodeEdit;
@@ -110,98 +109,150 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private ArrayList<LatLong> locations;
 	
 	private ArrayList<MapNode> connections;
-
+	
+	private HashMap<LatLong[], MapShape> mapShapes;
+			
+	private GoogleMap map;
+	
+	private ContextMenu markerMenu , mapMenu;
 	
 	@Override
 	public void mapInitialized() {
 		nodeEdit.setExpanded(true);
 		geocodingService = new GeocodingService();
-		
+	
 		MapOptions options = new MapOptions();
 		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
 				.mapType(MapTypeIdEnum.ROADMAP).mapTypeControl(false).streetViewControl(false);
 
-		GoogleMap map = gmap.createMap(options);
+		gmap.setDisableDoubleClick(true);
+		
+		map = gmap.createMap(options);
+		
+		gmap.addMapReadyListener(new MapReadyListener() {
+			
+			@Override
+			public void mapReady() {
+				onMapReady();
+			}
+		});
+		
+	}
+	
+	
+	
+	public void onMapReady() {
 		//toolip for the marker optional
 		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
 		InfoWindow infoWindow = new InfoWindow();
 		
-		
 		locations = getLocations();
+		
+		mapShapes = new HashMap<>();
+		
+		//to add the location where user right clicks so can use on the menu item action events. 
+		//TODO Double click is disable so need to add connection another way
+		
+		mapMenu = new ContextMenu();
+		MenuItem addMarker = new MenuItem("Add Marker");
+		MenuItem addEarthQuake = new MenuItem("Earth Quake");
+		mapMenu.getItems().addAll(addMarker,addEarthQuake);
+		
+		markerMenu =new ContextMenu();
+		MenuItem remove = new MenuItem("Remove");
+		MenuItem connection = new MenuItem("Start Connection");
+		markerMenu.getItems().addAll(remove, connection);
+
 		
 		// markers location icon
 		for (LatLong point : locations) {
+			//TODO fix the issue of the longitude having bigger decimal probably add the two decimal in file for more accurate location
 			addMarker(point, map, infoWindow, infoWindowOptions);
 		}	
 
 		connections = getConnections();
 		
-		for (MapNode links : connections) {
+		for(MapNode links : connections) {
 			LatLong[] pair = new LatLong[] {links.getStart(), links.getEnd()};
-			
 			MVCArray mvcArray = new MVCArray(pair);
-			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
-			Polyline polyline = new Polyline(polylineOptions);
-			map.addMapShape((MapShape) polyline);
 			
-		}
+			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2.5);
+			Polyline polyline = new Polyline(polylineOptions);
+			MapShape line = (MapShape) polyline;
+					
+			map.addMapShape(line);
+			mapShapes.put(pair, line);
+		}	
 		
+				
+	
+		//add listener on table. once user click on locations on table. it adds to the location to the addition section
+		nodeList.setOnMouseClicked(EventHandlers.tableListener(nodeList, startNorth, startEast, endNorth, endEast));		
 		
-		//add listener on table once user click on locations on table adds to the connection addition section
-		nodeList.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-			@Override
-			public void handle(MouseEvent event) {
-				if(startNorth.getText().equals("")||startEast.getText().equals("")) {
-					startNorth.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLatitude()));
-					startEast.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLongitude()));
-				}else {
-					endNorth.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLatitude()));
-					endEast.setText(format.format(nodeList.getSelectionModel().getSelectedItem().getLongitude()));
-				}
-			}
-		});
-		
-		
-		
-		//adding a new point
-		map.addMouseEventHandler(map, UIEventType.click, new MouseEventHandler() {
-
+		//add location on the map of where use rightclick 
+		map.addMouseEventHandler(map,UIEventType.rightclick, new MouseEventHandler() {
+			
 			@Override
 			public void handle(GMapMouseEvent arg0) {
-				LatLong location = arg0.getLatLong();
-				Double shortest = Double.MAX_VALUE;
-				Double limit = 96560.64; //meters t0 miles(60)
-
-				for(LatLong point : locations){
-					if(shortest > point.distanceFrom(location)) {
-						shortest = point.distanceFrom(location);
+				markerMenu.hide();
+			
+				gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+	
+					@Override
+					public void handle(ContextMenuEvent event) {
+						mapMenu.setAnchorX(event.getSceneX());
+						mapMenu.setAnchorY(event.getSceneY());
+						
+						addMarker.setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								addMarker(arg0.getLatLong(), map, infoWindow, infoWindowOptions);
+							}
+						});
+						
+						addEarthQuake.setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								TextInputDialog dialog = new TextInputDialog("EarthQuake Info");
+								dialog.setContentText("Please enter radius in kilometer: ");
+								dialog.setTitle("EarthQuake Info");
+								dialog.setHeaderText("Please Fill Out");
+								
+								CircleOptions co = new CircleOptions();
+								co.strokeColor("brown")
+								.fillColor("red")
+								.center(arg0.getLatLong())
+								.strokeWeight(2.0);
+								Optional<String> results = dialog.showAndWait();
+								results.ifPresent(distance ->  co.radius(Double.parseDouble(distance) * 1000));
+								Circle cir = new Circle(co);
+								
+								map.addMapShape(cir);
+								
+							}
+						});
+						
+						mapMenu.show(gmap, event.getSceneX(), event.getScreenY());
 					}
-				}
-				if(shortest> limit) {
-					lat.setText(format.format(location.getLatitude()));
-					log.setText(format.format(location.getLongitude()));
+				});
+			}
+		});		
+	
+		map.addMouseEventHandler(map, UIEventType.click, new MouseEventHandler() {
+			
+			@Override
+			public void handle(GMapMouseEvent arg) {
+				mapMenu.hide();
+				markerMenu.hide();
+				infoWindow.close();	
 				
-					geocodingService.reverseGeocode(location.getLatitude(), location.getLongitude(), new GeocodingServiceCallback() {
-						
-						@Override
-						public void geocodedResultsReceived(GeocodingResult[] arg0, GeocoderStatus arg1) {
-							if(arg1.equals(GeocoderStatus.OK)) {
-								if(arg0[arg0.length-1].getFormattedAddress().equals(us)) {
-									addMarker(location, map, infoWindow, infoWindowOptions);
-								}  									
-							} 
-							lat.clear();
-							log.clear();
-						}
-						
-					});
-				}
 			}
 		});
-		
-		
+					
 		//manually add stuff
+		//TODO make sure it is a valid entry
 		addLocation.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override
@@ -214,71 +265,13 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			}
 		});
 		
-		
-		addConnection.setOnAction(new EventHandler<ActionEvent>() {
-					
-					@Override
-					public void handle(ActionEvent arg0) {
-					
-						boolean valid = false;
-						LatLong[] pair = new LatLong[]{new LatLong(Double.parseDouble(startNorth.getText()), Double.parseDouble(startEast.getText())),
-														new LatLong(Double.parseDouble(endNorth.getText()), Double.parseDouble(endEast.getText()))};
-						
-						
-						List<MapNode> items = nodeList.getItems();
+		addConnection.setOnAction(EventHandlers.addConnection(map, nodeList, startNorth, startEast, endNorth, endEast));
 
-//						for(int i = 0; i <items.size(); i++) {
-//							boolean r = items.get(i).getLatitude()==pair[0].getLatitude();
-//							System.out.println(items.get(i).getLatitude() + " = " + pair[0].getLatitude() +" "+ r);
-//							r=format.format(items.get(i).getLongitude()).equals(format.format(pair[0].getLongitude()));
-//							System.out.println(items.get(i).getLongitude() + " = " + format.format(pair[0].getLongitude()) +" "+ r);
-//							r = items.get(i).getLatitude()==pair[1].getLatitude();
-//							System.out.println(items.get(i).getLatitude() + " = " + pair[1].getLatitude() +" "+ r);
-//							r=format.format(items.get(i).getLongitude()).equals(format.format(pair[1].getLongitude()));
-//							System.out.println(items.get(i).getLongitude() + " = " + format.format(pair[1].getLongitude()) +" "+ r);
-//							
-//						}
-						
-						//the format of the longitude gives an error so compare the string using the format of above(format) to see results uncomment above code
-						for(int i =0; i< items.size(); i++) {
-							if(items.get(i).getLatitude()==pair[0].getLatitude()&format.format(items.get(i).getLongitude()).equals(format.format(pair[0].getLongitude()))) {
-								valid=true;
-								break;
-							}
-						}
-						
-						for(int i =0; i< items.size(); i++) {
-							if(items.get(i).getLatitude()==pair[1].getLatitude()&format.format(items.get(i).getLongitude()).equals(format.format(pair[1].getLongitude()))) {
-								valid=true;
-								break;
-							}else {
-								valid=false;
-							}
-						}
-						
-						
-						if(valid) {
-							MVCArray mvcArray = new MVCArray(pair);
-							PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
-							Polyline polyline = new Polyline(polylineOptions);
-							map.addMapShape((MapShape) polyline);
-							startNorth.clear();
-							startEast.clear();
-							endEast.clear();
-							endNorth.clear();
-						}else {
-							startNorth.clear();
-							startEast.clear();
-							endEast.clear();
-							endNorth.clear();
-						}
-					}
-				});
+					
 	}
 
 	@FXML
 	public void displaySave() {
-	
 		saveNodes.getItems().addAll(nodeList.getItems());
 		columnNode.setCellValueFactory(new PropertyValueFactory<>("id"));
 		columnlat.setCellValueFactory(new PropertyValueFactory<>("latitude"));
@@ -381,7 +374,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			while(scanner.hasNext()) {
 				
 				String[] line = scanner.nextLine().split(" ");
-				locations.add(new LatLong(Double.parseDouble(line[0]), Double.parseDouble(line[1])));
+				LatLong point = new LatLong(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+				locations.add(point);
 			}	
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -410,7 +404,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				connections.add(new MapNode(start, end, distance));
 			}	
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -452,68 +445,59 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		MarkerOptions markerOptions = new MarkerOptions();
 		markerOptions.position(point);
 		Marker marker = new Marker(markerOptions);
+		marker.setTitle(format.format(point.getLatitude()) +  ", "+format.format(point.getLongitude()));
 		map.addMarker(marker);
+
+		map.addUIEventHandler(marker, UIEventType.click, EventHandlers.mapClick(map, geocodingService, infoWindowOptions, infoWindow, marker));
 		
-		
-		map.addUIEventHandler(marker, UIEventType.click, new UIEventHandler() {
+		map.addUIEventHandler(marker, UIEventType.rightclick, new UIEventHandler() {
 			
 			@Override
 			public void handle(JSObject arg0) {
 				
-				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
-		
-				geocodingService.reverseGeocode(ll.getLatitude(), ll.getLongitude(), new GeocodingServiceCallback() {
-					
+				gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
 					@Override
-					public void geocodedResultsReceived(GeocodingResult[] arg0, GeocoderStatus arg1) {						
-						String[] results = arg0[arg0.length-3].getFormattedAddress().split(",");
+					public void handle(ContextMenuEvent event) {
+						mapMenu.hide();
+						markerMenu.setAnchorX(event.getSceneX());
+						markerMenu.setAnchorY(event.getSceneY());
+						markerMenu.getItems().get(0).setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								map.removeMarker(marker);
+								//if a marker is deleted so does its links 
+								for(LatLong[] search : mapShapes.keySet()) {
+									for(LatLong distory : search) {
+										if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
+											map.removeMapShape(mapShapes.get(search));
+										}
+									}
+								}
+							}
+						});
 						
-						String display = results[0] + ", " + results[1].substring(0, 3); 
+						markerMenu.getItems().get(1).setOnAction(value ->{
+							MVCArray mvcArray = new MVCArray();
+							mvcArray.setAt(0, point);
+							PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5);
+							Polyline polyline = new Polyline(polylineOptions);
+							//map.addMouseEventHandler(marker, UIEventType.mousemove, EventHandlers.mouseMove(mvcArray, polyline, map));
+						});
 						
-						infoWindowOptions.content(display);
-						infoWindow.setOptions(infoWindowOptions);
-						infoWindow.open(map,marker);	
+						markerMenu.show(gmap, event.getSceneX()+40, event.getSceneY()+100);
 					}
-				});	
+				});
 			}
 		});
 		
-		map.addUIEventHandler(marker, UIEventType.dblclick, new UIEventHandler() {
-			
-			@Override
-			public void handle(JSObject arg0) {
-				LatLong ll = new LatLong((JSObject) arg0.getMember("latLng"));
-				//TODO check if user inputs location manually that will ruin code
-				
-				//TODO add to connections list
-				
-				//first user double click to set up connection to second dbclick
-				if(startNorth.getText().equals("")&startEast.getText().equals("")) {
-					startNorth.setText(format.format(ll.getLatitude()));
-					startEast.setText(format.format(ll.getLongitude()));
-					
-				}else {
-					endNorth.setText(format.format(ll.getLatitude()));
-					endEast.setText(format.format(ll.getLongitude()));
-					
-					LatLong[] pair = new LatLong[]{new LatLong(Double.parseDouble(startNorth.getText()), Double.parseDouble(startEast.getText())),
-													new LatLong(Double.parseDouble(endNorth.getText()), Double.parseDouble(endEast.getText()))};
-					MVCArray mvcArray = new MVCArray(pair);
-					PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(1.5);
-					Polyline polyline = new Polyline(polylineOptions);
-					map.addMapShape((MapShape) polyline);
-					startNorth.clear();
-					startEast.clear();
-					endEast.clear();
-					endNorth.clear();
-				}
-				
-			}
-		});
+//		map.addUIEventHandler(marker, UIEventType.dblclick, EventHandlers.mapDblCkick(map, startNorth, startEast, endNorth, endEast));
 		
 		nodeList.getItems().add(new MapNode(point.getLatitude(),point.getLongitude()));
 		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
 		lat_list.setCellValueFactory(new PropertyValueFactory<>("latitude"));
 		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
-	}
+	}	
+
 }
