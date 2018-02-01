@@ -50,7 +50,10 @@
                     <panes>
                       <TitledPane text="Google Maps">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Button fx:id="clear" layoutX="114.0" layoutY="245.0" mnemonicParsing="false" text="Clear" />
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                       <TitledPane fx:id="nodeEdit" text="Node Edit">

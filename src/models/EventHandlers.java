@@ -31,7 +31,7 @@ import javafx.scene.input.MouseEvent;
 import netscape.javascript.JSObject;
 
 public class EventHandlers {
-
+	
 	private static DecimalFormat format = new DecimalFormat("#0.0000");	
 	
 	//adding a listener for the table
@@ -78,6 +78,7 @@ public class EventHandlers {
 				});	
 			}
 		};
+		
 		return click;
 	}
 	
@@ -203,18 +204,6 @@ public class EventHandlers {
 		return rc;
 	}
 	
-	public static MouseEventHandler mouseMove(MVCArray mvcArray, Polyline polyline, GoogleMap map) {
-		return new MouseEventHandler() {
-			
-			@Override
-			public void handle(GMapMouseEvent h) {
-				mvcArray.setAt(1, h.getLatLong());
-				polyline.setPath(mvcArray);
-				map.addMapShape(polyline);	
-			}
-		};
-		
-	}
 		
 	
 	public EventHandler<ContextMenuEvent> jsObjectContextMenuEvent(){
@@ -229,7 +218,22 @@ public class EventHandlers {
 		return event;		
 	}
 	
+	public static UIEventHandler mouseMove(Polyline polyline, MVCArray mvcArray) {
+		UIEventHandler move = new UIEventHandler() {
+			
+			@Override
+			public void handle(JSObject arg0) {
+				mvcArray.setAt(1, new LatLong((JSObject) arg0.getMember("latLng")));
+				polyline.setPath(mvcArray);
+			}
+		};
+		
+		return move;
+	}
 	
+	public static void remove(UIEventHandler ui) {
+		ui = null;
+	}
 	
 		
 
