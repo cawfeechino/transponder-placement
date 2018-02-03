@@ -61,6 +61,10 @@ public class MapNode{
 	public int getId() {
 		return id;
 	}
+	
+	public static void reset() {
+		numberOfEntries = 0;
+	}
 
 }
 

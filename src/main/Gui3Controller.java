@@ -107,6 +107,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	@FXML
 	private Button addLocation, addConnection, clear;
 	
+	@FXML
+	private MenuItem upload;
+	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
 	private GeocodingService geocodingService;
@@ -119,20 +122,17 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	//for default connections
 	private ArrayList<MapNode> connections;
 	
-	
 	//when changes are made they will be added here
 	
 	//polylines
-	private HashMap<LatLong[], MapShape> mapShapes;
+	private HashMap<LatLong[], MapShape> polylines;
 	
 	//markers
 	private HashMap<LatLong, Marker> markers;
 	
 	//circles
 	private HashMap<LatLong, Circle> earthquakes;
-	
-	private LatLong[] pair;
-			
+				
 	private GoogleMap map;
 	
 	//one drop down when user right clicks on map another when click on marker
@@ -141,11 +141,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	//default path for nsfnet topology
 	private String path;
 	
-	HashMap <LatLong, Polyline> connection;
+	private HashMap <LatLong, Polyline> connection;
+	
+	MapReadyListener mrl;
 	
 	@Override
 	public void mapInitialized() {
-		nodeEdit.setExpanded(true);
 		geocodingService = new GeocodingService();
 	
 		MapOptions options = new MapOptions();
@@ -156,14 +157,15 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		gmap.setDisableDoubleClick(true);
 		
 		map = gmap.createMap(options);
-		
-		gmap.addMapReadyListener(new MapReadyListener() {
+		mrl = new MapReadyListener() {
 			
 			@Override
 			public void mapReady() {
 				onMapReady();
 			}
-		});
+		};
+		
+		gmap.addMapReadyListener(mrl);
 		
 	}
 	
@@ -175,15 +177,19 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
 		InfoWindow infoWindow = new InfoWindow();
 		
+		nodeEdit.setExpanded(true);
+		
 		locations = new ArrayList<>();
 		
-		mapShapes = new HashMap<>();
+		polylines = new HashMap<>();
 		markers = new HashMap<>();
 		earthquakes = new HashMap<>();
 		connection = new HashMap<>();
-		
+		System.out.println(path);
 		try {
-			path = new File(".").getCanonicalPath().concat("/src/assets/locationConnections.txt");
+			if(path == null) {
+				path = new File(".").getCanonicalPath().concat("/src/assets/locationConnections.txt");
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -204,8 +210,22 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		MenuItem connection = new MenuItem("Start Connection");
 		markerMenu.getItems().addAll(addEarthQuake0, remove, connection);
 
-		connections = getConnections(path);
 		
+		upload.setOnAction(e->{
+			FileChooser chooser = new FileChooser();
+			ExtensionFilter filter = new ExtensionFilter("TXT files (*.txt)", "*.txt");
+			chooser.setTitle("NSFNet Data");
+			chooser.getExtensionFilters().add(filter);
+			File f = chooser.showOpenDialog(Gui3Main.getPrimaryStage());
+			if(f != null) {
+				clear.fire();
+				path = f.getAbsolutePath();
+				onMapReady();
+				
+			}
+		});
+		
+		connections = getConnections(path);
 		
 		for(MapNode links : connections) {
 			LatLong[] pair = new LatLong[] {links.getStart(), links.getEnd()};
@@ -219,7 +239,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			MapShape line = (MapShape) polyline;
 					
 			map.addMapShape(line);
-			mapShapes.put(pair, line);	
+			polylines.put(pair, line);	
 			
 		}	
 			
@@ -241,6 +261,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			locations.remove(locations.size()-1);
 		}
 		
+		System.out.println(locations.size());
 		for(LatLong point : locations) {
 			addMarker(point, map, infoWindow, infoWindowOptions);
 		}
@@ -318,15 +339,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		
 		clear.setOnAction(value->{
 			map.clearMarkers();
-			Iterator<MapShape> it = mapShapes.values().iterator();
+			Iterator<MapShape> it = polylines.values().iterator();
 			while(it.hasNext()) {
 				map.removeMapShape(it.next());
 			}
 			
+			//delete all save data
 			nodeList.getItems().clear();
 			saveNodes.getItems().clear();
 			saveLinks.getItems().clear();
 			connections.clear();
+			locations.clear();
+			polylines.clear();
+			markers.clear();
+			earthquakes.clear();
+			MapNode.reset();
 			
 		});
 		
@@ -346,7 +373,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		});
 		
 		addConnection.setOnAction(EventHandlers.addConnection(map, nodeList, startNorth, startEast, endNorth, endEast));
-
 					
 	}
 	
@@ -459,7 +485,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			Scanner scanner = new Scanner(locationsFile);
 			
 			while(scanner.hasNext()) {
-				
 				String[] line = scanner.nextLine().split(" ");
 				String[] f = line[0].split(",");
 				String[] s = line[1].split(",");
@@ -482,8 +507,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				LatLong start = pair.getStart();
 				LatLong end = pair.getEnd();
 				double distance = pair.getDistance();
-				out.println(start.getLatitude() +','+start.getLongitude()+" "
-							+ end.getLatitude()+','+end.getLongitude()+" "
+				out.println(format.format(start.getLatitude()) +','+ format.format(start.getLongitude())+" "
+							+ format.format(end.getLatitude())+','+format.format(end.getLongitude())+" "
 							+ distance);
 			}
 
@@ -501,8 +526,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		marker.setTitle(format.format(point.getLatitude()) +  ", "+format.format(point.getLongitude()));
 		map.addMarker(marker);
 		markers.put(point, marker);
-		
-		
 		
 		map.addUIEventHandler(marker, UIEventType.click, h ->{
 			geocodingService.reverseGeocode(point.getLatitude(), point.getLongitude(), new GeocodingServiceCallback() {
@@ -562,6 +585,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							
 							map.addMapShape(cir);
 							earthquakes.put(point, cir);
+										
 						});
 						
 						
@@ -572,10 +596,10 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							public void handle(ActionEvent event) {
 								map.removeMarker(marker);
 								//if a marker is deleted so does its links 
-								for(LatLong[] search : mapShapes.keySet()) {
+								for(LatLong[] search : polylines.keySet()) {
 									for(LatLong distory : search) {
 										if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
-											map.removeMapShape(mapShapes.get(search));
+											map.removeMapShape(polylines.get(search));											
 										}
 									}
 								}
@@ -595,7 +619,9 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								Polyline polyline = new Polyline(polylineOptions);
 								connection.put(point, polyline);
 								mvcArray.setAt(0, point);
-								map.addMapShape(polyline);	
+							//this is for when trying to see where u are connecting
+//								map.addMapShape(polyline);	
+								
 								polyline.setPath(mvcArray);
 								markerMenu.getItems().get(2).setText("End Connection");
 								
@@ -609,15 +635,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							markerMenu.getItems().get(2).removeEventHandler(ActionEvent.ACTION, markerMenu.getItems().get(2).getOnAction());
 							
 							markerMenu.getItems().get(2).setOnAction(value->{
-								map.removeMapShape((MapShape) connection.values().toArray()[0]);
+								//map.removeMapShape((MapShape) connection.values().toArray()[0]);
 								markerMenu.getItems().get(2).setText("Start Connection");
+								LatLong start = connection.keySet().iterator().next();
+								LatLong[] key = new LatLong[] {start, point};
 								
-								LatLong[] key = new LatLong[] {connection.keySet().iterator().next(), point};
-								Polyline p = (Polyline) connection.values().toArray()[0];
-								p.getPath().setAt(1, point);
-								map.addMapShape(p);
+								if(!connection.keySet().iterator().next().equals(point)) {
+									Polyline p = (Polyline) connection.values().toArray()[0];
+									p.getPath().setAt(1, point);
+									map.addMapShape(p);
+									
+									polylines.put(key, p);
+									connections.add(new MapNode(start, point, start.distanceFrom(point)));
+									connection.clear();
+								}
 								
-								mapShapes.put(key, p);
 								connection.clear();
 							});
 						}
