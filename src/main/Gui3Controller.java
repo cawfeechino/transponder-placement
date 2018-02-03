@@ -169,6 +169,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	
 	
 	
+	
 	public void onMapReady() {
 		//toolip for the marker optional
 		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
@@ -234,7 +235,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			}
 		}
 		
-		//for some reason it doesnt compair the last two elements in the above for loop
+		//for some reason it doesnt compare the last two elements in the above for loop
 		//TODO need to find a better solution 
 		if(locations.get(locations.size()-2).getLatitude() == locations.get(locations.size()-1).getLatitude() & locations.get(locations.size()-2).getLongitude() ==locations.get(locations.size()-1).getLongitude()) {
 			locations.remove(locations.size()-1);
@@ -312,7 +313,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				mapMenu.hide();
 				markerMenu.hide();
 				infoWindow.close();	
-				
 			}
 		});
 		
@@ -585,6 +585,10 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 						
 						//connections
 						if(markerMenu.getItems().get(2).getText().equals("Start Connection")) {
+							if(markerMenu.getItems().get(2).getOnAction() !=null) {
+								markerMenu.getItems().get(2).removeEventHandler(ActionEvent.ACTION, markerMenu.getItems().get(2).getOnAction());
+							}
+							
 							markerMenu.getItems().get(2).setOnAction(value ->{
 								MVCArray mvcArray = new MVCArray();
 								PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5);
@@ -592,13 +596,14 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								connection.put(point, polyline);
 								mvcArray.setAt(0, point);
 								map.addMapShape(polyline);	
+								polyline.setPath(mvcArray);
 								markerMenu.getItems().get(2).setText("End Connection");
 								
-								map.addUIEventHandler(UIEventType.mousemove, h->{
-									mvcArray.setAt(1, new LatLong((JSObject) h.getMember("latLng")));
-									polyline.setPath(mvcArray);
-								});
-								
+//								map.addUIEventHandler(UIEventType.mousemove, h->{
+//									mvcArray.setAt(1, new LatLong((JSObject) h.getMember("latLng")));
+//									polyline.setPath(mvcArray);
+//								});
+						
 							});	
 						}else {
 							markerMenu.getItems().get(2).removeEventHandler(ActionEvent.ACTION, markerMenu.getItems().get(2).getOnAction());
@@ -608,14 +613,11 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								markerMenu.getItems().get(2).setText("Start Connection");
 								
 								LatLong[] key = new LatLong[] {connection.keySet().iterator().next(), point};
-								MVCArray mvcArray = new MVCArray(key);
-								PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5).path(mvcArray);
-								Polyline polyline = new Polyline(polylineOptions);
-								map.addMapShape(polyline);
+								Polyline p = (Polyline) connection.values().toArray()[0];
+								p.getPath().setAt(1, point);
+								map.addMapShape(p);
 								
-								 
-								mapShapes.put(key, (MapShape) connection.values().toArray()[0]);
-								System.out.println(mapShapes.get(key));
+								mapShapes.put(key, p);
 								connection.clear();
 							});
 						}
