@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 
 
-public class MapNode {
+public class MapNode{
 	static int numberOfEntries = 0;
 	private int id;
 	private double latitude;
@@ -16,6 +16,8 @@ public class MapNode {
 	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
+	//fix distance
+	//TODO
 	public MapNode(LatLong start, LatLong end, double distance) {
 		super();
 		this.start = start;
@@ -61,5 +63,10 @@ public class MapNode {
 	public int getId() {
 		return id;
 	}
+	
+	public static void reset() {
+		numberOfEntries = 0;
+	}
 
 }
+
