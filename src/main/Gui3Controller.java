@@ -517,4 +517,3 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
 	}
 }
-
