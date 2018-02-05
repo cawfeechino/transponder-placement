@@ -2,48 +2,80 @@ package main;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.MapReadyListener;
+import com.lynden.gmapsfx.javascript.JavascriptObject;
+import com.lynden.gmapsfx.javascript.event.GMapMouseEvent;
+import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
+import com.lynden.gmapsfx.javascript.event.UIEventHandler;
+import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
+import com.lynden.gmapsfx.service.geocoding.GeocoderStatus;
+import com.lynden.gmapsfx.service.geocoding.GeocodingResult;
+import com.lynden.gmapsfx.service.geocoding.GeocodingService;
+import com.lynden.gmapsfx.service.geocoding.GeocodingServiceCallback;
+import com.lynden.gmapsfx.shapes.Circle;
+import com.lynden.gmapsfx.shapes.CircleOptions;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.Set;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import models.nodeEditor;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
+import metrics.TransponderMetric;
+import models.EventHandlers;
+import models.MapNode;
+import netscape.javascript.JSObject;
+
+// all form of distance are in meters NOTE*
 public class Gui3Controller implements Initializable, MapComponentInitializedListener {
-	
-	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--", "random", "gaussian", "uniform");
-	ObservableList<String> routingMethodList = FXCollections.observableArrayList("--select a routing method--", "SPF", "LUF", "MUF", "OPT", "MUX", "Hybrid");
-	
+
+	ObservableList<String> trafficMethodList = FXCollections.observableArrayList("-select a traffic request method--",
+			"random", "gaussian", "uniform");
+	ObservableList<String> routingMethodList = FXCollections.observableArrayList("--select a routing method--", "SPF",
+			"LUF", "MUF", "OPT", "MUX", "Hybrid");
+
 	private String trafficMethod;
 	private String routingMethod;
 	private StringBuilder console = new StringBuilder();
-	List<nodeEditor> entries = new ArrayList<nodeEditor>();
-	private TableView<nodeEditor> table = new TableView<nodeEditor>();
-	
-	
 
 	@FXML
 	private ResourceBundle resources;
@@ -53,200 +85,392 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 
 	@FXML
 	private GoogleMapView gmap;
-	
-	private LatLong LatLong;
-
-	@Override
-	public void mapInitialized() {
-		MapOptions options = new MapOptions();
-		
-		//lat: 38.873959 lng: -98.517483 zoom:4
-		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
-				.mapType(MapTypeIdEnum.ROADMAP);
-		
-		GoogleMap map = gmap.createMap(options);
-		
-		LatLong sd = new LatLong(32.7157,-117.1611);
-		LatLong palo = new LatLong(37.4419, -122.143);
-		LatLong seattle = new LatLong(47.6062, -122.3321);
-		LatLong slc = new LatLong(40.7608,-111.8910);
-		LatLong boulder= new LatLong(40.0150, -105.2705);
-		LatLong houston= new LatLong(29.7604, -95.3698);
-		LatLong lincoln= new LatLong(40.8258, -96.6852); 
-		LatLong champaign= new LatLong(40.1164, -88.2434);
-		LatLong atlanta= new LatLong(33.749, -84.388);
-		LatLong pittsburgh= new LatLong(40.4406, -79.9959);
-		LatLong annArbor= new LatLong(42.2808, -83.7430);
-		LatLong ithaca= new LatLong(43.444,-76.5019);
-		LatLong collegePk= new LatLong(38.9897, -76.9378);
-		LatLong princeton= new LatLong(40.3487, -74.659);
-		
-		HashMap<Integer, LatLong> locations = new HashMap<>();
-		locations.put(0,sd);
-		locations.put(1, palo);
-		locations.put(2, seattle);
-		locations.put(3, slc);
-		locations.put(4, boulder);
-		locations.put(5, houston);
-		locations.put(6, lincoln);
-		locations.put(7, champaign);
-		locations.put(8, atlanta);
-		locations.put(9, pittsburgh);
-		locations.put(10, annArbor);
-		locations.put(11, ithaca);
-		locations.put(12, collegePk);
-		locations.put(13, princeton);
-		
-		//markers location icon
-		for(int i =0; i < locations.size(); i++) {
-			MarkerOptions markerOptions = new MarkerOptions();
-			markerOptions.position(locations.get(i));
-			Marker marker = new Marker(markerOptions);
-			map.addMarker(marker);
-		}		
-		
-		ArrayList<LatLong[]> connections = new ArrayList<>();
-		
-		LatLong[] sdANDpalo = new LatLong[] {sd,palo};
-		connections.add(sdANDpalo);
-				
-		LatLong[] sdANDsea = new LatLong[] {sd,seattle};
-		connections.add(sdANDsea);
-		
-		LatLong[] paloANDsea = new LatLong[] {seattle,palo};
-		connections.add(paloANDsea);
-		
-		LatLong[] paloANDslc = new LatLong[] {slc,palo};
-		connections.add(paloANDslc);
-		
-		LatLong[] seattleANDchampaign = new LatLong[] {seattle,champaign};
-		connections.add(seattleANDchampaign);
-		
-		LatLong[] sdANDhouston = new LatLong[] {sd,houston};
-		connections.add(sdANDhouston);
-		
-		LatLong[] slcANDboulder = new LatLong[] {slc,boulder};
-		connections.add(slcANDboulder);
-		
-		LatLong[] slcANDannArbor = new LatLong[] {slc,annArbor};
-		connections.add(slcANDannArbor);
-		
-		LatLong[] boulderANDhouston = new LatLong[] {boulder,houston};
-		connections.add(boulderANDhouston);
-		
-		LatLong[] boulderANDlincoln = new LatLong[] {boulder,lincoln};
-		connections.add(boulderANDlincoln);
-		
-		LatLong[] lincolnANDchampaign = new LatLong[] {lincoln,champaign};
-		connections.add(lincolnANDchampaign);
-		
-		LatLong[] champaignANDpittsburgh = new LatLong[] {champaign,pittsburgh};
-		connections.add(champaignANDpittsburgh);
-		
-		LatLong[] houstonANDatlnta = new LatLong[] {houston,atlanta};
-		connections.add(houstonANDatlnta);
-		
-		LatLong[] houstonANDcollegePk = new LatLong[] {houston,collegePk};
-		connections.add(houstonANDcollegePk);
-		
-		LatLong[] atlantaANDpittsburgh = new LatLong[] {atlanta,pittsburgh};
-		connections.add(atlantaANDpittsburgh);
-		
-		LatLong[] annArborANDprinceton = new LatLong[] {annArbor,princeton};
-		connections.add(annArborANDprinceton);
-		
-		LatLong[] annArborANDithica = new LatLong[] {annArbor,ithaca};
-		connections.add(annArborANDithica);
-		
-		LatLong[] pittsburghANDithaca = new LatLong[] {pittsburgh,ithaca};
-		connections.add(pittsburghANDithaca);
-		
-		LatLong[] pittsburghANDprinceton = new LatLong[] {pittsburgh,princeton};
-		connections.add(pittsburghANDprinceton);
-		
-		LatLong[] collegePkANDithaca = new LatLong[] {collegePk,ithaca};
-		connections.add(collegePkANDithaca);
-		
-		LatLong[] collegePkANDprinceton = new LatLong[] {collegePk,princeton};
-		connections.add(collegePkANDprinceton);
-
-		for(int i =0; i <connections.size(); i++) {
-			MVCArray mvcArray = new MVCArray(connections.get(i));
-			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2);
-			Polyline polyline = new Polyline(polylineOptions);
-			map.addMapShape(polyline);
-		}
-	}
-	
-    @FXML
-    private ComboBox<String> trafficMethodBox;
-    
-    @FXML
-    private void trafficMethodChoice() {
-    	if(!trafficMethodBox.getValue().toString().equals("-select a traffic request method--")) {
-    		trafficMethod = trafficMethodBox.getValue().toString();
-    	}
-    	console.append(trafficMethod + "\n");
-    	consoleText.setText(console.toString());
-    	System.out.println(trafficMethod);
-    }
-    @FXML
-    private TextField lat;
-    
-    @FXML
-    private TextField log;
-    @FXML
-    private TableColumn<nodeEditor, Integer> nodes; 
-    @FXML
-    private TableColumn<nodeEditor, Double> lat_list, log_list; 
-    @FXML
-    private TableView<nodeEditor> nodeList;
 
 	@FXML
-    public void exportButtonAction(){
-		try {
+	private TableColumn<MapNode, Integer> nodes,columnNode;
 
-			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-			for(nodeEditor e : entries) {
-				out.println(e.getId() + "\t" + e.getLattitude() + "\t" + e.getLongitude());
+	@FXML
+	private TableColumn<MapNode, Double> lat_list, log_list, columnlat, columnlng, distance;
 
+	private LatLong LatLong;
+
+	@FXML
+	private TableColumn<MapNode, LatLong> start, end;
+	
+	@FXML
+	private TableView<MapNode> nodeList, saveNodes, saveLinks;
+
+	@FXML
+	private TitledPane nodeEdit;
+	
+	@FXML
+	private TextField lat, log, startNorth, startEast, endNorth, endEast;
+	
+	@FXML
+	private Button addLocation, addConnection, clear;
+	
+	@FXML
+	private MenuItem upload;
+	
+	private DecimalFormat format = new DecimalFormat("#0.0000");
+	
+	private GeocodingService geocodingService;
+	
+	private final String us = "United States";
+	
+	//for default location
+	private ArrayList<LatLong> locations;
+	
+	//for default connections
+	private ArrayList<MapNode> connections;
+	
+	//when changes are made they will be added here
+	
+	//polylines
+	private HashMap<LatLong[], MapShape> polylines;
+	
+	//markers
+	private HashMap<LatLong, Marker> markers;
+	
+	//circles
+	private HashMap<LatLong, Circle> earthquakes;
+				
+	private GoogleMap map;
+	
+	//one drop down when user right clicks on map another when click on marker
+	private ContextMenu markerMenu , mapMenu;
+	
+	//default path for nsfnet topology
+	private String path;
+	
+	private HashMap <LatLong, Polyline> connection;
+		
+	@Override
+	public void mapInitialized() {
+		geocodingService = new GeocodingService();
+	
+		MapOptions options = new MapOptions();
+		options.center(new LatLong(38.873959, -98.517483)).zoomControl(true).zoom(4).overviewMapControl(false)
+				.mapType(MapTypeIdEnum.ROADMAP).mapTypeControl(false).streetViewControl(false);
+		
+
+		gmap.setDisableDoubleClick(true);
+		
+		map = gmap.createMap(options);
+		
+		
+		gmap.addMapReadyListener(new MapReadyListener() {
+			
+			@Override
+			public void mapReady() {
+				onMapReady();
 			}
-			out.close();
-		}catch(IOException e1) {
-			System.out.println("Error during reading/writing");
+		});
+		
+	}	
+	
+	public void onMapReady() {
+		//toolip for the marker optional
+		InfoWindowOptions infoWindowOptions = new InfoWindowOptions();
+		InfoWindow infoWindow = new InfoWindow();
+		
+		nodeEdit.setExpanded(true);
+		
+		locations = new ArrayList<>();
+		
+		polylines = new HashMap<>();
+		markers = new HashMap<>();
+		earthquakes = new HashMap<>();
+		connection = new HashMap<>();
+		try {
+			if(path == null) {
+				path = new File(".").getCanonicalPath().concat("/src/assets/locationConnections.txt");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//to add the location where user right clicks so can use on the menu item action events. 		
+		mapMenu = new ContextMenu();
+		
+		MenuItem addMarker = new MenuItem("Add Marker");
+		MenuItem addEarthQuake = new MenuItem("Earth Quake");
+		mapMenu.getItems().addAll(addMarker,addEarthQuake);
+		
+		markerMenu =new ContextMenu();
+		MenuItem addEarthQuake0 = new MenuItem("Earth Quake");
+		MenuItem remove = new MenuItem("Remove");
+		MenuItem connection = new MenuItem("Start Connection");
+		markerMenu.getItems().addAll(addEarthQuake0, remove, connection);
+		
+		upload.setOnAction(e->{
+			FileChooser chooser = new FileChooser();
+			ExtensionFilter filter = new ExtensionFilter("TXT files (*.txt)", "*.txt");
+			chooser.setTitle("NSFNet Data");
+			chooser.getExtensionFilters().add(filter);
+			File f = chooser.showOpenDialog(Gui3Main.getPrimaryStage());
+			if(f != null) {
+				clear.fire();
+				path = f.getAbsolutePath();
+				onMapReady();
+			}
+		});
+		
+		connections = getConnections(path);
+		
+		for(MapNode links : connections) {
+			LatLong[] pair = new LatLong[] {links.getStart(), links.getEnd()};
+			MVCArray mvcArray = new MVCArray(pair);
+		
+			locations.add(links.getStart());
+			locations.add(links.getEnd());		
+			
+			PolylineOptions polylineOptions = new PolylineOptions().path(mvcArray).strokeColor("black").strokeWeight(2.5);
+			Polyline polyline = new Polyline(polylineOptions);
+			MapShape line = (MapShape) polyline;
+					
+			map.addMapShape(line);
+			polylines.put(pair, line);	
+			
+		}	
+			
+		
+		//make distinct list
+		for(int i =0; i<locations.size()-1; i++) {
+			for(int j=1; j<locations.size(); j++) {
+				if(i!=j) {
+					if(locations.get(i).getLatitude() == locations.get(j).getLatitude() & locations.get(i).getLongitude() == locations.get(j).getLongitude()) {
+						locations.remove(j);
+					}
+				}
+			}
+		}
+		
+		//for some reason it doesnt compare the last two elements in the above for loop
+		//TODO need to find a better solution 
+		if(locations.get(locations.size()-2).getLatitude() == locations.get(locations.size()-1).getLatitude() & locations.get(locations.size()-2).getLongitude() ==locations.get(locations.size()-1).getLongitude()) {
+			locations.remove(locations.size()-1);
 		}
 
+		for(LatLong point : locations) {
+			addMarker(point, map, infoWindow, infoWindowOptions);
+		}
+		
+		//add listener on table. once user click on locations on table. it adds to the location to the addition section
+		nodeList.setOnMouseClicked(EventHandlers.tableListener(nodeList, startNorth, startEast, endNorth, endEast));		
+		
+		//add location on the map of where use rightclick 
+		map.addMouseEventHandler(map,UIEventType.rightclick, new MouseEventHandler() {
+			
+			@Override
+			public void handle(GMapMouseEvent arg0) {
+				markerMenu.hide();
+			
+				gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+	
+					@Override
+					public void handle(ContextMenuEvent event) {
+						mapMenu.setAnchorX(event.getSceneX());
+						mapMenu.setAnchorY(event.getSceneY());
+						
+						addMarker.setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								locations.add(arg0.getLatLong());
+								addMarker(arg0.getLatLong(), map, infoWindow, infoWindowOptions);
+							}
+						});
+						
+						//add earthquake
+						//to see if the marker falls in the earthquake data grab the center of the circle and find the distance between the marker and the center
+						//Compare that to the radius
+						//user is clicking on the marker so by default maker will be disabled. 
+						
+						addEarthQuake.setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								TextInputDialog dialog = new TextInputDialog("EarthQuake Info");
+								dialog.setContentText("Please enter radius in kilometer: ");
+								dialog.setTitle("EarthQuake Info");
+								dialog.setHeaderText("Please Fill Out");
+								
+								CircleOptions co = new CircleOptions();
+								co.strokeColor("brown")
+								.fillColor("red")
+								.center(arg0.getLatLong())
+								.strokeWeight(2.0);
+								Optional<String> results = dialog.showAndWait();
+								results.ifPresent(distance -> {
+									co.radius(Integer.parseInt(distance) * 1000.0);
+								});
+								Circle cir = new Circle(co);
+							
+								map.addMapShape(cir);
+								
+								//if marker falls in radius of earthquake
+								Iterator<LatLong> it = markers.keySet().iterator();
+								while(it.hasNext()) {
+									LatLong ll = it.next();
+									if(ll.distanceFrom(cir.getCenter()) <= (int) cir.getJSObject().getMember("radius") ) {
+										System.out.println("hit");
+										MarkerOptions mo = new MarkerOptions();
+										//TODO
+										mo.icon("");
+										//grabbing the marker and setting the options
+										markers.get(ll).setOptions(mo);;
+									}
+								}
+								
+							}
+						});
+						
+						mapMenu.show(gmap, event.getSceneX(), event.getScreenY());
+					}
+				});
+			}
+		});		
+	
+		map.addMouseEventHandler(map, UIEventType.click, new MouseEventHandler() {
+			
+			@Override
+			public void handle(GMapMouseEvent arg) {
+				mapMenu.hide();
+				markerMenu.hide();
+				infoWindow.close();	
+			}
+		});
+		
+		clear.setOnAction(value->{
+			map.clearMarkers();
+			Iterator<MapShape> it = polylines.values().iterator();
+			while(it.hasNext()) {
+				map.removeMapShape(it.next());
+			}
+			
+			//delete all save data
+			nodeList.getItems().clear();
+			saveNodes.getItems().clear();
+			saveLinks.getItems().clear();
+			connections.clear();
+			locations.clear();
+			polylines.clear();
+			markers.clear();
+			earthquakes.clear();
+			MapNode.reset();
+			
+		});
+		
+					
+		//manually add stuff
+		//TODO make sure it is a valid entry
+		addLocation.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				String nlat = format.format(Double.parseDouble(lat.getText()));
+				String nlng = format.format(Double.parseDouble(log.getText()));
+				LatLong newPoint = new LatLong(Double.parseDouble(nlat), Double.parseDouble(nlng));
+				
+					addMarker(newPoint, map, infoWindow, infoWindowOptions);
+			}
+		});
+		
+		addConnection.setOnAction(EventHandlers.addConnection(map, nodeList, startNorth, startEast, endNorth, endEast));
+					
+	}
+	
+
+	@FXML
+	public void displaySave() {
+		saveNodes.getItems().clear();
+		saveNodes.getItems().addAll(nodeList.getItems());
+		columnNode.setCellValueFactory(new PropertyValueFactory<>("id"));
+		columnlat.setCellValueFactory(new PropertyValueFactory<>("latitude"));
+		columnlng.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+	
+		saveLinks.getItems().clear();
+		saveLinks.getItems().addAll(connections);
+		start.setCellValueFactory(new PropertyValueFactory<>("start"));
+		end.setCellValueFactory(new PropertyValueFactory<>("end"));
+		distance.setCellValueFactory(new PropertyValueFactory<>("distance"));
+
+	}
+	
+	@FXML
+	public void saveFile() throws IOException {
+		FileChooser chooser = new FileChooser();
+		ExtensionFilter filter = new ExtensionFilter("TXT files (*.txt)", "*.txt");
+		chooser.setTitle("NSFNet Data");
+		chooser.getExtensionFilters().add(filter);
+		File file = chooser.showSaveDialog(Gui3Main.getPrimaryStage());
+		writeConnections(connections, file);
+	}
+	
+	@FXML
+	private ComboBox<String> trafficMethodBox;
+
+	@FXML
+	private void trafficMethodChoice() {
+		if (!trafficMethodBox.getValue().toString().equals("-select a traffic request method--")) {
+			trafficMethod = trafficMethodBox.getValue().toString();
+		}
+		console.append(trafficMethod + "\n");
+		consoleText.setText(console.toString());
+		System.out.println(trafficMethod);
 	}
 
-    @FXML
-    public void handleButtonAction() {
-    		double lattitude, lognitude;
-    		
-    		lattitude = Double.parseDouble(lat.getText());
-    		lognitude = Double.parseDouble(log.getText());
-    		nodeEditor entry = new nodeEditor(lattitude,lognitude);
-    		entries.add(entry);
-	    		nodeList.getItems().add(new nodeEditor(lattitude, lognitude));
-	    		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
-	    		lat_list.setCellValueFactory(new PropertyValueFactory<>("lattitude"));
+	@FXML
+	private ComboBox<String> routingMethodBox;
 
-	    		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
-    		
-    }
+	@FXML
+	private void routingMethodChoice() {
+		if (!routingMethodBox.getValue().toString().equals("--select a routing method--")) {
+			routingMethod = routingMethodBox.getValue().toString();
+		}
+		System.out.println(routingMethod);
+	}
+	
+	@FXML
+	private Button runSimulator;
 
-    @FXML
-    private ComboBox<String> routingMethodBox;
-    
-    @FXML
-    private void routingMethodChoice() {
-    	if(!routingMethodBox.getValue().equals("--select a routing method--")) {
-    		routingMethod = routingMethodBox.getValue();
-    	}
-    	System.out.println(routingMethod);
-    }
-    
-    @FXML
-    private Text consoleText;
+	@FXML
+	private void runSimulator(ActionEvent event) {
+		console.append("running simulator\n");
+		consoleText.setText(console.toString());
+		Task<Void> simulator = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				String[] args = { trafficMethod.toUpperCase(), routingMethod };
+				TransponderMetric.main(args);
+				return null;
+			}
+		};
+		simulator.setOnSucceeded(workerStateEvent -> {
+			console.append("simulator finished\n");
+			consoleText.setText(console.toString());
+			try {
+				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Graph.fxml"));
+				Parent root = (Parent) fxmlLoader.load();
+				Stage stage = new Stage();
+				stage.setTitle("Simulator Results");
+				stage.setScene(new Scene(root));
+				stage.show();
+			} catch (Exception e) {
+
+			}
+		});
+		simulator.setOnFailed(workerStateEvent -> {
+			console.append("Did you set a traffic request method or routing method?\n");
+			consoleText.setText(console.toString());
+		});
+		Thread run = new Thread(simulator);
+		run.start();
+	}
+
+	@FXML
+	private Text consoleText;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -255,7 +479,211 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		trafficMethodBox.getSelectionModel().select(0);
 		routingMethodBox.setItems(routingMethodList);
 		routingMethodBox.getSelectionModel().select(0);
-		
-	    
+
 	}
+	
+	
+	public ArrayList<MapNode> getConnections(String location){
+		ArrayList<MapNode> connections = new ArrayList<>();
+		try {
+			File locationsFile = new File(location);
+			Scanner scanner = new Scanner(locationsFile);
+			
+			while(scanner.hasNext()) {
+				String[] line = scanner.nextLine().split(" ");
+				String[] f = line[0].split(",");
+				String[] s = line[1].split(",");
+				double distance = Double.parseDouble(line[2]);
+				LatLong start = new LatLong(Double.parseDouble(f[0]),Double.parseDouble(f[1]));
+				LatLong end = new LatLong(Double.parseDouble(s[0]),Double.parseDouble(s[1]));
+				connections.add(new MapNode(start, end, distance));
+			}	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return connections;
+	}
+		
+	public void writeConnections(ArrayList<MapNode> connections, File file) {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(file));
+			for (MapNode pair : connections) {
+				LatLong start = pair.getStart();
+				LatLong end = pair.getEnd();
+				double distance = pair.getDistance();
+				out.println(format.format(start.getLatitude()) +','+ format.format(start.getLongitude())+" "
+							+ format.format(end.getLatitude())+','+format.format(end.getLongitude())+" "
+							+ distance);
+			}
+
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void removeMarker(Marker marker, LatLong point) {
+		map.removeMarker(marker);
+		for(LatLong[] search : polylines.keySet()) {
+			for(LatLong distory : search) {
+				if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
+					map.removeMapShape(polylines.get(search));											
+				}
+			}
+		}
+	}
+	
+	
+	public void addMarker(LatLong point, GoogleMap map, InfoWindow infoWindow, InfoWindowOptions infoWindowOptions) {
+		MarkerOptions markerOptions = new MarkerOptions();
+		markerOptions.position(point);
+		Marker marker = new Marker(markerOptions);
+		marker.setTitle(format.format(point.getLatitude()) +  ", "+format.format(point.getLongitude()));
+		//TODO set default marker options
+		markerOptions.icon("");
+		map.addMarker(marker);
+		markers.put(point, marker);
+		
+		map.addUIEventHandler(marker, UIEventType.click, h ->{
+			geocodingService.reverseGeocode(point.getLatitude(), point.getLongitude(), new GeocodingServiceCallback() {
+				
+				@Override
+				public void geocodedResultsReceived(GeocodingResult[] arg0, GeocoderStatus arg1) {		
+					
+					String[] results = arg0[arg0.length-3].getFormattedAddress().split(",");
+					
+					String display = results[0] + ", " + results[1].substring(0, 3); 
+					
+					infoWindowOptions.content(display);
+					infoWindow.setOptions(infoWindowOptions);
+					infoWindow.open(map,marker);	
+					
+				}
+			});	
+		});
+		
+//		map.addUIEventHandler(marker, UIEventType.click, EventHandlers.mapClick(map, geocodingService, infoWindowOptions, infoWindow, marker));
+		
+		
+		map.addUIEventHandler(marker, UIEventType.rightclick, new UIEventHandler() {
+			
+			@Override
+			public void handle(JSObject arg0) {
+				
+				
+				gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+					@Override
+					public void handle(ContextMenuEvent event) {
+						mapMenu.hide();
+						markerMenu.setAnchorX(event.getSceneX());
+						markerMenu.setAnchorY(event.getSceneY());
+						marker.setAnimation(Animation.DROP);		
+						
+						
+						//add earthquake
+						//to see if the marker falls in the earthquake data grab the center of the circle and find the distance between the marker and the center
+						//Compare that to the radius
+						//user is clicking on the marker so by default maker will be disabled. 
+						markerMenu.getItems().get(0).setOnAction(value -> {
+							TextInputDialog dialog = new TextInputDialog("EarthQuake Info");
+							dialog.setContentText("Please enter radius in kilometer: ");
+							dialog.setTitle("EarthQuake Info");
+							dialog.setHeaderText("Please Fill Out");
+							
+							CircleOptions co = new CircleOptions();
+							co.strokeColor("brown")
+							.fillColor("red")
+							.center(point)
+							.strokeWeight(2.0);
+							Optional<String> results = dialog.showAndWait();
+							results.ifPresent(distance ->  co.radius(Double.parseDouble(distance) * 1000));
+							Circle cir = new Circle(co);
+							
+							map.addMapShape(cir);
+							earthquakes.put(point, cir);
+										
+						});
+						
+						
+						//remove marker
+						markerMenu.getItems().get(1).setOnAction(new EventHandler<ActionEvent>() {
+							
+							@Override
+							public void handle(ActionEvent event) {
+								map.removeMarker(marker);
+								//if a marker is deleted so does its links 
+								for(LatLong[] search : polylines.keySet()) {
+									for(LatLong distory : search) {
+										if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
+											map.removeMapShape(polylines.get(search));											
+										}
+									}
+								}
+							}
+						});
+						
+						
+						//connections
+						if(markerMenu.getItems().get(2).getText().equals("Start Connection")) {
+							if(markerMenu.getItems().get(2).getOnAction() !=null) {
+								markerMenu.getItems().get(2).removeEventHandler(ActionEvent.ACTION, markerMenu.getItems().get(2).getOnAction());
+							}
+							
+							markerMenu.getItems().get(2).setOnAction(value ->{
+								MVCArray mvcArray = new MVCArray();
+								PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5);
+								Polyline polyline = new Polyline(polylineOptions);
+								connection.put(point, polyline);
+								mvcArray.setAt(0, point);
+							//this is for when trying to see where u are connecting
+//								map.addMapShape(polyline);	
+								
+								polyline.setPath(mvcArray);
+								markerMenu.getItems().get(2).setText("End Connection");
+								
+//								map.addUIEventHandler(UIEventType.mousemove, h->{
+//									mvcArray.setAt(1, new LatLong((JSObject) h.getMember("latLng")));
+//									polyline.setPath(mvcArray);
+//								});
+						
+							});	
+						}else {
+							markerMenu.getItems().get(2).removeEventHandler(ActionEvent.ACTION, markerMenu.getItems().get(2).getOnAction());
+							
+							markerMenu.getItems().get(2).setOnAction(value->{
+								//map.removeMapShape((MapShape) connection.values().toArray()[0]);
+								markerMenu.getItems().get(2).setText("Start Connection");
+								LatLong start = connection.keySet().iterator().next();
+								LatLong[] key = new LatLong[] {start, point};
+								
+								if(!connection.keySet().iterator().next().equals(point)) {
+									Polyline p = (Polyline) connection.values().toArray()[0];
+									p.getPath().setAt(1, point);
+									map.addMapShape(p);
+									
+									polylines.put(key, p);
+									connections.add(new MapNode(start, point, start.distanceFrom(point)));
+									connection.clear();
+								}
+								
+								connection.clear();
+							});
+						}
+						
+						markerMenu.show(gmap, event.getSceneX()+40, event.getSceneY()+100);
+					}
+				});
+			}
+		});
+		
+//		map.addUIEventHandler(marker, UIEventType.dblclick, EventHandlers.mapDblCkick(map, startNorth, startEast, endNorth, endEast));
+		
+		nodeList.getItems().add(new MapNode(point.getLatitude(),point.getLongitude()));
+		nodes.setCellValueFactory(new PropertyValueFactory<>("id"));
+		lat_list.setCellValueFactory(new PropertyValueFactory<>("latitude"));
+		log_list.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+	}	
+
 }

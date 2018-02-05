@@ -779,13 +779,7 @@ public class Gui2  extends Application{
 
 			@Override
 			protected Void call() throws Exception {
-				// TODO Auto-generated method stub
-				try {
-					TransponderMetric.main(args);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	
+				TransponderMetric.main(args);	
 				return null;
 			}
 			
