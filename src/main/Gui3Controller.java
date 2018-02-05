@@ -142,9 +142,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private String path;
 	
 	private HashMap <LatLong, Polyline> connection;
-	
-	MapReadyListener mrl;
-	
+		
 	@Override
 	public void mapInitialized() {
 		geocodingService = new GeocodingService();
@@ -157,20 +155,17 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		gmap.setDisableDoubleClick(true);
 		
 		map = gmap.createMap(options);
-		mrl = new MapReadyListener() {
+		
+		
+		gmap.addMapReadyListener(new MapReadyListener() {
 			
 			@Override
 			public void mapReady() {
 				onMapReady();
 			}
-		};
+		});
 		
-		gmap.addMapReadyListener(mrl);
-		
-	}
-	
-	
-	
+	}	
 	
 	public void onMapReady() {
 		//toolip for the marker optional
@@ -185,19 +180,15 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		markers = new HashMap<>();
 		earthquakes = new HashMap<>();
 		connection = new HashMap<>();
-		System.out.println(path);
 		try {
 			if(path == null) {
 				path = new File(".").getCanonicalPath().concat("/src/assets/locationConnections.txt");
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		//to add the location where user right clicks so can use on the menu item action events. 
-		//TODO Double click is disable so need to add connection another way
-		
+		//to add the location where user right clicks so can use on the menu item action events. 		
 		mapMenu = new ContextMenu();
 		
 		MenuItem addMarker = new MenuItem("Add Marker");
@@ -209,7 +200,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		MenuItem remove = new MenuItem("Remove");
 		MenuItem connection = new MenuItem("Start Connection");
 		markerMenu.getItems().addAll(addEarthQuake0, remove, connection);
-
 		
 		upload.setOnAction(e->{
 			FileChooser chooser = new FileChooser();
@@ -221,7 +211,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				clear.fire();
 				path = f.getAbsolutePath();
 				onMapReady();
-				
 			}
 		});
 		
@@ -261,14 +250,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			locations.remove(locations.size()-1);
 		}
 		
-		System.out.println(locations.size());
 		for(LatLong point : locations) {
 			addMarker(point, map, infoWindow, infoWindowOptions);
 		}
 		
 		//add listener on table. once user click on locations on table. it adds to the location to the addition section
 		nodeList.setOnMouseClicked(EventHandlers.tableListener(nodeList, startNorth, startEast, endNorth, endEast));		
-		
 		
 		//add location on the map of where use rightclick 
 		map.addMouseEventHandler(map,UIEventType.rightclick, new MouseEventHandler() {
@@ -313,10 +300,20 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								.center(arg0.getLatLong())
 								.strokeWeight(2.0);
 								Optional<String> results = dialog.showAndWait();
-								results.ifPresent(distance ->  co.radius(Double.parseDouble(distance) * 1000));
+								results.ifPresent(distance -> {
+									co.radius(Integer.parseInt(distance) * 1000.0);
+								});
 								Circle cir = new Circle(co);
-								
+							
 								map.addMapShape(cir);
+								
+								//if marker falls in radius of earthquake
+								Iterator<LatLong> it = markers.keySet().iterator();
+								while(it.hasNext()) {
+									if(it.next().distanceFrom(cir.getCenter()) <= (int) cir.getJSObject().getMember("radius") ) {
+										System.out.println("hit");
+									}
+								}
 								
 							}
 						});
@@ -515,6 +512,17 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void removeMarker(Marker marker, LatLong point) {
+		map.removeMarker(marker);
+		for(LatLong[] search : polylines.keySet()) {
+			for(LatLong distory : search) {
+				if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
+					map.removeMapShape(polylines.get(search));											
+				}
+			}
 		}
 	}
 	

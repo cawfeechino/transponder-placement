@@ -16,6 +16,8 @@ public class MapNode{
 	
 	private DecimalFormat format = new DecimalFormat("#0.0000");
 	
+	//fix distance
+	//TODO
 	public MapNode(LatLong start, LatLong end, double distance) {
 		super();
 		this.start = start;
