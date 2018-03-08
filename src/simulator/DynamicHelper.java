@@ -69,6 +69,10 @@ public class DynamicHelper extends Thread {
 	public int getStart() {
 		return start;
 	}
+	
+	public int getDrops() {
+		return dropped;
+	}
 	//have this extend thread
 	//copy updateTransponderBandwidth from simulator
 }
