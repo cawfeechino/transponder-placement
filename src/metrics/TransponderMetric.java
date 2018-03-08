@@ -262,7 +262,7 @@ public class TransponderMetric{
 		PrintWriter pw = new PrintWriter(file);
 		
 		
-		pw.println("Max_Bandwidth," + routingType + " ");
+		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops ");
 		
 		ArrayList<CustomRequest> requests = new ArrayList<CustomRequest>();
 		if(customRequest) {
@@ -277,19 +277,39 @@ public class TransponderMetric{
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
 			int sum = 0;
+			int sum1 = 0;
+			int sum2 = 0;
 			
-			for(int j = 0; j < 1000; j++){
+			/*for(int j = 0; j < 1000; j++){
 				Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
 				simulator.setMaxNodes(0);// setting requests with only two nodes.
-				simulator.setNumberOfRequest(500);
+				simulator.setNumberOfRequest(5); //originally 500
 				simulator.generateRequests();
 				
-				int transponders = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
+				ArrayList<Integer> results = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
 				
-				sum += transponders; 
+				//tranponders, bandwidth, hops
+				sum += results.get(0);
+				sum1 += results.get(1);
+				sum2 += results.get(2);
 				
 			}				
-			pw.println(i + "," + sum/1000);
+			pw.println(i + "," + sum/1000 + "," + sum1/1000 + "," + sum2/1000);*/
+			
+			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
+			simulator.setMaxNodes(0);// setting requests with only two nodes.
+			simulator.setNumberOfRequest(500); //originally 500
+			simulator.setMaxTime(10);
+			simulator.generateRequests();
+			
+			ArrayList<Integer> results = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
+			
+			//tranponders, bandwidth, hops
+			sum += results.get(0);
+			sum1 += results.get(1);
+			sum2 += results.get(2);
+			
+			pw.println(i + "," + sum + "," + sum1 + "," + sum2);
 		}
 		
 		pw.close();
@@ -297,39 +317,41 @@ public class TransponderMetric{
 		System.out.println("********************** done *******************");
 	}
 	
-	public static int getTranspondersByType(String routingType, Simulator simulator, int transponderCapacity, int maxBandwidth, String distribution,
+	public static ArrayList<Integer> getTranspondersByType(String routingType, Simulator simulator, int transponderCapacity, int maxBandwidth, String distribution,
 			boolean backupPath, ArrayList<CustomRequest> customRequest, int hybridThreshold) {
-		int transponders = 0;
+		ArrayList<Integer> results = new ArrayList<Integer>();
 		switch(routingType) {
 		case "SPF":
-			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 0, backupPath, customRequest);
+			results = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 0, backupPath, customRequest);
 			break;
 		case "LUF":
-			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 1, backupPath, customRequest);
+			results = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 1, backupPath, customRequest);
 			break;
 		case "MUF":
-			transponders = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 2, backupPath, customRequest);
+			results = simulator.getTranspondersODU(transponderCapacity, maxBandwidth, distribution, 2, backupPath, customRequest);
 			break;
 		case "OPT":
-			transponders = simulator.getTransponderOPT(transponderCapacity, maxBandwidth, distribution, backupPath);
+			results = simulator.getTransponderOPT(transponderCapacity, maxBandwidth, distribution, backupPath);
 			break;
 		case "Hybrid":
-			transponders = simulator.getTranspondersHybrid(transponderCapacity, maxBandwidth, distribution, backupPath, hybridThreshold);
+			results = simulator.getTranspondersHybrid(transponderCapacity, maxBandwidth, distribution, backupPath, hybridThreshold);
 			break;
 		case "MUX":
-			transponders = simulator.getTransponderMUX(transponderCapacity, maxBandwidth, distribution, backupPath);
+			results = simulator.getTransponderMUX(transponderCapacity, maxBandwidth, distribution, backupPath);
 			break;
 		default:
 			break;
 		}
-		return transponders;
+		return results;
 	}
 	
-	public static void main(String args[]) {
-		try {
+	public static void main(String args[]) throws IOException {
+		/*try {
 			new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.valueOf(args[0]), args[1]);
 		} catch (Exception e){
 			System.out.println(e);
-		}
+		}*/
+		
+		new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.RANDOM, "SPF");
 	}
 }

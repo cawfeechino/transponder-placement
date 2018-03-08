@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import utilities.NetworkTopology;
 
@@ -22,7 +23,9 @@ public class VirtualRequest {
 
 	private int numberOfVirtualNodes;
 	private int numberOfVirtualLinks;
-
+	private int start = -1;
+	private int duration = -1;
+	
 	private boolean blocked = false;
 
 	private List<VirtualNode> virtualNodes;
@@ -72,31 +75,46 @@ public class VirtualRequest {
 			virtualLinks.add(new VirtualLink(new Pair<Integer, Integer>(virtualNodes.get(virtualNode).getID(),
 					virtualNodes.get(virtualNode + 1).getID()), Link.generateRandomBandwidth()));
 	}
+	
+	public VirtualRequest(int maxNodes, NetworkTopology type, int maxSecond) {
 
-	public VirtualRequest(int start, int end, NetworkTopology type) {
-
-		this.numberOfVirtualNodes = end - start + 1;
+		// Minimum number of nodes is 2, largest is 1 - max number of nodes
+		this.numberOfVirtualNodes = 2 + (int) (Math.random() * maxNodes);
+		// Linear array topology has 1 less link than the total number of nodes
 		this.numberOfVirtualLinks = numberOfVirtualNodes - 1;
 
 		virtualNodes = new ArrayList<>();
 		virtualLinks = new ArrayList<>();
 
+		// Create virtual nodes
 		for (int vnID = 0; vnID < numberOfVirtualNodes; vnID++) {
 			VirtualNode virtualNode = new VirtualNode(vnID, Node.generateRandomComputationalSpeed());
 			virtualNode.setRequestedFunction(1 + (int) (Math.random() * 3));
 			virtualNodes.add(virtualNode);
 		}
 
-		int originMapID = start;
-		int destinationMapID = end;
+		// ------------------------ Map source node and destination node
+		// randomly ------------------------ //
+
+		int originMapID = (int) (Math.random() * type.getNumberOfPhysicalNodes());
+		int destinationMapID = originMapID;
+		while (destinationMapID == originMapID)
+			destinationMapID = (int) (Math.random() * type.getNumberOfPhysicalNodes());
+
 		virtualNodes.get(0).setMap(originMapID);
 		virtualNodes.get(numberOfVirtualNodes - 1).setMap(destinationMapID);
 
-		for (int virtualNode = 0; virtualNode < numberOfVirtualLinks; virtualNode++) {
+		// ----------------------------------- Create virtual links
+		// ------------------------------------- //
+
+		for (int virtualNode = 0; virtualNode < numberOfVirtualLinks; virtualNode++)
 			virtualLinks.add(new VirtualLink(new Pair<Integer, Integer>(virtualNodes.get(virtualNode).getID(),
 					virtualNodes.get(virtualNode + 1).getID()), Link.generateRandomBandwidth()));
-			// System.out.println(virtualLinks.get(virtualNode).toString());
-		}
+		
+		Random r = new Random();
+		start = r.nextInt(maxSecond);
+		int timeRemain = maxSecond - start;
+		duration = r.nextInt((timeRemain - 1) + 1) + 1;
 	}
 
 	/**
@@ -115,6 +133,14 @@ public class VirtualRequest {
 	 */
 	public int getNumberOfVirtualLinks() {
 		return numberOfVirtualLinks;
+	}
+	
+	public int getStart() {
+		return start;
+	}
+	
+	public int getDuration() {
+		return duration;
 	}
 
 	/**
