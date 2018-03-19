@@ -38,7 +38,7 @@ public class TransponderMetric{
 		//getResultsHypercube16(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);		
 	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP, topology, threshold, false);
 	//	 getResultsTestTwo(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, int hybridThreshold, boolean customRequest)
-		getResultsTestTwo(distribution, EMBEDDING_METHOD.BACKUP, NetworkTopology.MESH8, routingType, 80, 100, 50, false);
+		getResultsTestTwo(distribution, EMBEDDING_METHOD.BACKUP, NetworkTopology.NSFNET, routingType, 80, 100, 50, false);
 	//	simulator.getTranspondersODU(100,i, distributionType.name().toLowerCase(), 0, (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests);
 
 	}
@@ -262,7 +262,7 @@ public class TransponderMetric{
 		PrintWriter pw = new PrintWriter(file);
 		
 		
-		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops ");
+		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops,Dropped_Requests,Drop_Rate ");
 		
 		ArrayList<CustomRequest> requests = new ArrayList<CustomRequest>();
 		if(customRequest) {
@@ -273,12 +273,15 @@ public class TransponderMetric{
 		}
 		
 		//default 500
-		for(int i = 20; i <= maxBandwidth; i+=20){
+	//	for(int i = 20; i <= maxBandwidth; i+=20){
+		for(int i = 60; i <= 60; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
 			int sum = 0;
 			int sum1 = 0;
 			int sum2 = 0;
+			int sum3 = 0;
+			int sum4 = 0;
 			
 			/*for(int j = 0; j < 1000; j++){
 				Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
@@ -296,20 +299,23 @@ public class TransponderMetric{
 			}				
 			pw.println(i + "," + sum/1000 + "," + sum1/1000 + "," + sum2/1000);*/
 			
-			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
+			//default max bandwidth is 100000
+			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 10000);
 			simulator.setMaxNodes(0);// setting requests with only two nodes.
-			simulator.setNumberOfRequest(500); //originally 500
+			simulator.setNumberOfRequest(1000); //originally 500
 			simulator.setMaxTime(10);
 			simulator.generateRequests();
 			
 			ArrayList<Integer> results = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
 			
-			//tranponders, bandwidth, hops
+			//transponders, bandwidth, hops, dropped, drop rate
 			sum += results.get(0);
 			sum1 += results.get(1);
 			sum2 += results.get(2);
+			sum3 += results.get(3);
+			sum4 += results.get(4);
 			
-			pw.println(i + "," + sum + "," + sum1 + "," + sum2);
+			pw.println(i + "," + sum + "," + sum1 + "," + sum2 + "," + sum3 + "," + sum4);
 		}
 		
 		pw.close();
@@ -352,6 +358,6 @@ public class TransponderMetric{
 			System.out.println(e);
 		}*/
 		
-		new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.RANDOM, "SPF");
+		new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.RANDOM, "LUF");
 	}
 }

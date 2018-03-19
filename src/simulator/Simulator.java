@@ -24,8 +24,6 @@ import models.Topology;
 import models.VirtualLink;
 import models.VirtualNode;
 import models.VirtualRequest;
-import testing.InterruptedException;
-import testing.ScheduledExecutorService;
 import utilities.DijkstraShortestPath;
 import utilities.KShortestPath;
 import utilities.NetworkTopology;
@@ -275,17 +273,24 @@ public class Simulator {
 					}
 					break;
 				case 1:
-					KShortestPath kspLUF = new KShortestPath(topology, start, finish);
-					ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
-					Path path1 = getLUF(pathsLUF);
-					Path disjointPath = DijkstraShortestPath.getDisjointShortestPath(topology, path1, start, finish);
+				//	KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+				//	ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
+					
+				//	Path path1 = getLUF(pathsLUF);
+				//	Path disjointPath = DijkstraShortestPath.getDisjointShortestPath(topology, path1, start, finish);
 					if(vr.getStart() != -1) {
-						threads.add(new DynamicHelper(path1, vr.getStart(), vr.getDuration(), traffic));
+						/*threads.add(new DynamicHelper(path1, vr.getStart(), vr.getDuration(), traffic));
 						if(backupPath) {
 							threads.add(new DynamicHelper(disjointPath, vr.getStart(), vr.getDuration(), traffic));
-						}
+						}*/
+						
+						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 1));
 					}
 					else {
+						KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+						ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
+						Path path1 = getLUF(pathsLUF);
+						Path disjointPath = DijkstraShortestPath.getDisjointShortestPath(topology, path1, start, finish);
 						hops += updateTransponderBandwidth(path1, traffic);
 						if (backupPath)
 							hops += updateTransponderBandwidth(
@@ -295,15 +300,17 @@ public class Simulator {
 				case 2:
 					KShortestPath kspMUF = new KShortestPath(topology, start, finish);
 					ArrayList<Path> pathsMUF = kspMUF.getShortestPath(3);
-					Path path2 = getMUF(pathsMUF);
-					Path disjointPath2 = DijkstraShortestPath.getDisjointShortestPath(topology, path2, start, finish);
 					if(vr.getStart() != -1) {
-						threads.add(new DynamicHelper(path2, vr.getStart(), vr.getDuration(), traffic));
+						/*threads.add(new DynamicHelper(path2, vr.getStart(), vr.getDuration(), traffic));
 						if(backupPath) {
 							threads.add(new DynamicHelper(disjointPath2, vr.getStart(), vr.getDuration(), traffic));
-						}
+						}*/
+						
+						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 2));
 					}
 					else {
+						Path path2 = getMUF(pathsMUF);
+						Path disjointPath2 = DijkstraShortestPath.getDisjointShortestPath(topology, path2, start, finish);
 						hops += updateTransponderBandwidth(path2, traffic);
 						if (backupPath)
 							hops += updateTransponderBandwidth(
@@ -320,6 +327,8 @@ public class Simulator {
 		}
 		int totalTranspondersODU = 0;
 		int totalBandwidth = 0;
+		int totalDroppedDynamic = 0;
+		double dropRate = 0;
 		if(requests.get(0).getStart() != -1) {
 			for(int x=0; x<threads.size(); x++) {
 				scheduler.schedule(threads.get(x), threads.get(x).getStart(), TimeUnit.SECONDS);
@@ -335,7 +344,11 @@ public class Simulator {
 	        }
 			for(int y=0; y<threads.size(); y++) {
 				hops += threads.get(y).getHops();
+				if(threads.get(y).getStatus() == 0) {
+					totalDroppedDynamic++;
+				}
 			}
+			dropRate = (double) totalDroppedDynamic / numberOfRequests * 100;
 		}
 		for (PhysicalLink l : topology.getLinks()) {
 			totalTranspondersODU += l.getTransponders(transponderCapacity);
@@ -356,6 +369,8 @@ public class Simulator {
 		results.add(totalTranspondersODU);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(totalDroppedDynamic);
+		results.add((int) dropRate);
 		return results;
 	}
 
@@ -384,6 +399,8 @@ public class Simulator {
 		results.add(totalTranspondersOTN);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 
@@ -440,6 +457,8 @@ public class Simulator {
 		results.add(totalTranspondersMUX);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 
@@ -503,6 +522,8 @@ public class Simulator {
 		results.add(totalTransponders);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 
@@ -529,8 +550,18 @@ public class Simulator {
 		for (PhysicalLink pl : topology.getLinks())
 			pl.setBandwidthAvailability(topology.getBandwidthAvailability());
 	}
-
-	public Path getLUF(ArrayList<Path> paths) {
+	
+	public static ArrayList<Path> getDynamicPaths(int start, int finish) {
+		System.out.println("working");
+		KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+		ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
+		ArrayList<Path> temp = new ArrayList<Path>();
+		temp.add(getLUF(pathsLUF));
+		temp.add(DijkstraShortestPath.getDisjointShortestPath(topology, temp.get(0), start, finish));
+		return temp;
+	}
+	
+	public static Path getLUF(ArrayList<Path> paths) {
 		Path returnPath = null;
 		for (int x = 0; x < paths.size(); x++) {
 			int currMax = getGreatestBandwidthFromPath(paths.get(x));
@@ -544,7 +575,7 @@ public class Simulator {
 		return returnPath;
 	}
 
-	public int getGreatestBandwidthFromPath(Path path) {
+	public static int getGreatestBandwidthFromPath(Path path) {
 		int max = 0;
 		PathNode current = path.getStart();
 		PathNode next = current.next();
@@ -558,7 +589,7 @@ public class Simulator {
 		return max;
 	}
 
-	public Path getMUF(ArrayList<Path> paths) {
+	public static Path getMUF(ArrayList<Path> paths) {
 		Path returnPath = null;
 		for (int x = 0; x < paths.size(); x++) {
 			int currLow = getLeastBandwidthFromPath(paths.get(x));
@@ -572,7 +603,7 @@ public class Simulator {
 		return returnPath;
 	}
 
-	public int getLeastBandwidthFromPath(Path path) {
+	public static int getLeastBandwidthFromPath(Path path) {
 		int low = Integer.MAX_VALUE;
 		PathNode current = path.getStart();
 		PathNode next = current.next();
