@@ -115,6 +115,7 @@ public class VirtualRequest {
 		start = r.nextInt(maxSecond);
 		int timeRemain = maxSecond - start;
 		duration = r.nextInt((timeRemain - 1) + 1) + 1;
+		while(duration > 50) duration = r.nextInt((timeRemain - 1) + 1) + 1;;
 	}
 
 	/**

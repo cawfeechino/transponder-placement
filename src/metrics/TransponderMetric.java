@@ -262,7 +262,7 @@ public class TransponderMetric{
 		PrintWriter pw = new PrintWriter(file);
 		
 		
-		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops ");
+		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops,Drop,Drop% ");
 		
 		ArrayList<CustomRequest> requests = new ArrayList<CustomRequest>();
 		if(customRequest) {
@@ -273,12 +273,14 @@ public class TransponderMetric{
 		}
 		
 		//default 500
-		for(int i = 20; i <= maxBandwidth; i+=20){
+		for(int i = 20; i <= 80; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 			
 			int sum = 0;
 			int sum1 = 0;
 			int sum2 = 0;
+			int sum3 = 0;
+			int sum4 = 0;
 			
 			/*for(int j = 0; j < 1000; j++){
 				Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
@@ -296,9 +298,9 @@ public class TransponderMetric{
 			}				
 			pw.println(i + "," + sum/1000 + "," + sum1/1000 + "," + sum2/1000);*/
 			
-			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 100000);
+			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 2000);
 			simulator.setMaxNodes(0);// setting requests with only two nodes.
-			simulator.setNumberOfRequest(500); //originally 500
+			simulator.setNumberOfRequest(1000); //originally 500
 			simulator.setMaxTime(10);
 			simulator.generateRequests();
 			
@@ -308,8 +310,10 @@ public class TransponderMetric{
 			sum += results.get(0);
 			sum1 += results.get(1);
 			sum2 += results.get(2);
+			sum3 += results.get(3);
+			sum4 += results.get(4);
 			
-			pw.println(i + "," + sum + "," + sum1 + "," + sum2);
+			pw.println(i + "," + sum + "," + sum1 + "," + sum2 + "," + sum3 + "," + sum4);
 		}
 		
 		pw.close();

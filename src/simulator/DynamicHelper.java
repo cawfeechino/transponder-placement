@@ -9,7 +9,7 @@ public class DynamicHelper extends Thread {
 	private int bandwidth = 0;
 	private Path path;
 	private int hops = 0;
-	private int dropped = 0;
+	private boolean status = true;
 	
 	public DynamicHelper(Path path, int start, int duration, int bandwidth) {
 		this.start= start;
@@ -31,10 +31,9 @@ public class DynamicHelper extends Thread {
 		restoreTranponderBandwidth(path, bandwidth);
 	}
 	
-	private int useTransponderBandwidth(Path path, int traffic) {
+	private void useTransponderBandwidth(Path path, int traffic) {
 		PathNode current = path.getStart();
 		PathNode next = current.next();
-		int status = 1;
 		while (next != null) {
 			//only do if available bandwidth is greatest or equal to the traffic needed, otherwise skips
 			//do we need to do something to the dropped ones though
@@ -47,9 +46,8 @@ public class DynamicHelper extends Thread {
 				next = next.next();
 			}
 			else
-				dropped++;
+				status = false; 
 		}
-		return status;
 	}
 	
 	private void restoreTranponderBandwidth(Path path, int traffic) {
@@ -70,8 +68,8 @@ public class DynamicHelper extends Thread {
 		return start;
 	}
 	
-	public int getDrops() {
-		return dropped;
+	public boolean getStatus() {
+		return status;
 	}
 	//have this extend thread
 	//copy updateTransponderBandwidth from simulator
