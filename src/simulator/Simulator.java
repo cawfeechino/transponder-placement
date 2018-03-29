@@ -273,8 +273,8 @@ public class Simulator {
 					}
 					break;
 				case 1:
-				//	KShortestPath kspLUF = new KShortestPath(topology, start, finish);
-				//	ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
+					KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+					ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
 					
 				//	Path path1 = getLUF(pathsLUF);
 				//	Path disjointPath = DijkstraShortestPath.getDisjointShortestPath(topology, path1, start, finish);
@@ -283,13 +283,13 @@ public class Simulator {
 						if(backupPath) {
 							threads.add(new DynamicHelper(disjointPath, vr.getStart(), vr.getDuration(), traffic));
 						}*/
-						
-						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 1));
+						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 1, pathsLUF));
 					}
 					else {
-						KShortestPath kspLUF = new KShortestPath(topology, start, finish);
-						ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
+					//	KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+					//	ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
 						Path path1 = getLUF(pathsLUF);
+					//	Path path1 = pathsLUF.get(1);
 						Path disjointPath = DijkstraShortestPath.getDisjointShortestPath(topology, path1, start, finish);
 						hops += updateTransponderBandwidth(path1, traffic);
 						if (backupPath)
@@ -306,7 +306,7 @@ public class Simulator {
 							threads.add(new DynamicHelper(disjointPath2, vr.getStart(), vr.getDuration(), traffic));
 						}*/
 						
-						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 2));
+						threads.add(new DynamicHelper(vr.getStart(), vr.getDuration(), traffic, start, finish, 2, pathsMUF));
 					}
 					else {
 						Path path2 = getMUF(pathsMUF);
@@ -551,14 +551,18 @@ public class Simulator {
 			pl.setBandwidthAvailability(topology.getBandwidthAvailability());
 	}
 	
-	public static ArrayList<Path> getDynamicPaths(int start, int finish) {
+	public static ArrayList<Path> getDynamicPaths(Topology topo, int start, int finish) {
 		System.out.println("working");
-		KShortestPath kspLUF = new KShortestPath(topology, start, finish);
+		KShortestPath kspLUF = new KShortestPath(topo, start, finish);
 		ArrayList<Path> pathsLUF = kspLUF.getShortestPath(3);
 		ArrayList<Path> temp = new ArrayList<Path>();
 		temp.add(getLUF(pathsLUF));
 		temp.add(DijkstraShortestPath.getDisjointShortestPath(topology, temp.get(0), start, finish));
 		return temp;
+	}
+	
+	public static Path getDisjointPath(Path input, int start, int finish) {
+		return DijkstraShortestPath.getDisjointShortestPath(topology, input, start, finish);
 	}
 	
 	public static Path getLUF(ArrayList<Path> paths) {

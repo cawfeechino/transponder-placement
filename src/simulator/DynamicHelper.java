@@ -24,6 +24,7 @@ public class DynamicHelper extends Thread {
 	private Path KSPDisPath;
 	private int mode;
 	private static int counter;
+	private ArrayList<Path> paths = new ArrayList<Path>();
 
 	public DynamicHelper(Path path, int start, int duration, int bandwidth) {
 		this.start = start;
@@ -32,13 +33,14 @@ public class DynamicHelper extends Thread {
 		this.path = path;
 	}
 	
-	public DynamicHelper(int start, int duration, int bandwidth, int pathStart, int pathFinish, int mode) {
+	public DynamicHelper(int start, int duration, int bandwidth, int pathStart, int pathFinish, int mode, ArrayList<Path> paths) {
 		this.start = start;
 		this.duration = duration;
 		this.bandwidth = bandwidth;
 		this.pathStart = pathStart;
 		this.pathFinish = pathFinish;
 		this.mode = mode;
+		this.paths = paths;
 	}
 
 	/*public void run() {
@@ -57,7 +59,6 @@ public class DynamicHelper extends Thread {
 	}*/
 	
 	public void run() {
-		
 		switch(mode) {
 		//LUF
 		case 1:
@@ -121,18 +122,16 @@ public class DynamicHelper extends Thread {
 	}
 	
 	private void generatePathLUF() {
-		ArrayList<Path> paths = new ArrayList<Path>();
+	//	System.out.println(paths.get(1).toString());
+		KSPPath = Simulator.getLUF(paths);
+	//	System.out.println(KSPPath.toString());
 		System.out.println("start: " + pathStart + " finish: " + pathFinish);
 		try {
-			
-		paths = Simulator.getDynamicPaths(pathStart, pathFinish);
+			KSPDisPath = Simulator.getDisjointPath(KSPPath, pathStart, pathFinish);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		System.out.println("test");
-		KSPPath = paths.get(0);
-		KSPPath = paths.get(1);
-		
 		
 	}
 	

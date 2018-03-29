@@ -88,7 +88,7 @@ public class DijkstraShortestPath {
 		PathNode current = path.getStart().next();
 		while(current.hasNext()){
 			if(!current.hasNext()) break;
-			
+			System.out.println(topology.getNodes().get(current.getNodeID()).getAdjacentNodes().toString());
 			for (Map.Entry<Integer,Integer> entry : topology.getNodes().get(current.getNodeID()).getAdjacentNodes().entrySet()) 
 				topology.getNodes().get(entry.getKey()).removeAdjacentNode(current.getNodeID());
 			
