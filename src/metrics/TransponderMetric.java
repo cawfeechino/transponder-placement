@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import simulator.DynamicHelper;
 import simulator.Simulator;
 import models.CustomRequest;
 import utilities.RequestsUtil;
@@ -259,8 +260,9 @@ public class TransponderMetric{
 		String RESULTS_DIRECTORY = "/src/results/";
 		String fileName = "_transponder_new_" + distributionType.name().toLowerCase() + "_" + routingType.toLowerCase() + "_";
 		File file = new File(PROJECT_DIRECTORY + RESULTS_DIRECTORY + hybridThreshold + fileName + distributionType.name().toLowerCase() + "_" + method.name().toLowerCase() + ".csv");
+		File fileUtil = new File(PROJECT_DIRECTORY + RESULTS_DIRECTORY + hybridThreshold + fileName + distributionType.name().toLowerCase() + "_" + method.name().toLowerCase() + "_utilization" + ".csv");
 		PrintWriter pw = new PrintWriter(file);
-		
+		PrintWriter pwUtil = new PrintWriter(fileUtil);
 		
 		pw.println("Max_Bandwidth,Transponders,Bandwidth,Hops,Drop,Drop% ");
 		
@@ -273,8 +275,11 @@ public class TransponderMetric{
 		}
 		
 		//default 500
-		for(int i = 20; i <= 80; i+=20){
+		for(int i = 80; i <= 80; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
+
+			pwUtil.println(i);
+			pwUtil.println("Second, Utilization ");
 			
 			int sum = 0;
 			int sum1 = 0;
@@ -297,11 +302,14 @@ public class TransponderMetric{
 				
 			}				
 			pw.println(i + "," + sum/1000 + "," + sum1/1000 + "," + sum2/1000);*/
-			
-			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, 2000);
+			int maxLinkCapacity = 2000;
+			Simulator simulator = new Simulator(topology,Integer.MAX_VALUE, maxLinkCapacity);
+			int maxTime = 10;
+			int requestsCount = 1000;
+			DynamicHelper.utilInit(maxTime);
 			simulator.setMaxNodes(0);// setting requests with only two nodes.
-			simulator.setNumberOfRequest(1000); //originally 500
-			simulator.setMaxTime(10);
+			simulator.setNumberOfRequest(requestsCount); //originally 500
+			simulator.setMaxTime(maxTime);
 			simulator.generateRequests();
 			
 			ArrayList<Integer> results = getTranspondersByType(routingType, simulator, transponderCapacity, i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests, hybridThreshold);
@@ -313,10 +321,19 @@ public class TransponderMetric{
 			sum3 += results.get(3);
 			sum4 += results.get(4);
 			
+			ArrayList<Integer> utilization = DynamicHelper.getUtilization();
+			
 			pw.println(i + "," + sum + "," + sum1 + "," + sum2 + "," + sum3 + "," + sum4);
+			
+			for(int x = 0; x < utilization.size(); x++) {
+				Double utilAverage = (double) utilization.get(x).intValue() / Simulator.getTopology().getLinks().size();
+				Double utilPercent =  (double) utilAverage / maxLinkCapacity * 100;
+				pwUtil.println(x + "," + utilPercent);
+			}
 		}
 		
 		pw.close();
+		pwUtil.close();
 		
 		System.out.println("********************** done *******************");
 	}

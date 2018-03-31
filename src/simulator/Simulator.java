@@ -24,8 +24,6 @@ import models.Topology;
 import models.VirtualLink;
 import models.VirtualNode;
 import models.VirtualRequest;
-import testing.InterruptedException;
-import testing.ScheduledExecutorService;
 import utilities.DijkstraShortestPath;
 import utilities.KShortestPath;
 import utilities.NetworkTopology;
@@ -329,7 +327,7 @@ public class Simulator {
 			}
 			scheduler.shutdown();
 			try {
-				int extraSecond = maxTime + 5;
+				int extraSecond = maxTime + 10;
 	        	Thread.sleep(extraSecond * 1000);
 	        }
 	        catch(InterruptedException ex) 
