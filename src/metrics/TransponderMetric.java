@@ -367,12 +367,12 @@ public class TransponderMetric{
 	}
 	
 	public static void main(String args[]) throws IOException {
-		/*try {
+		try {
 			new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.valueOf(args[0]), args[1]);
 		} catch (Exception e){
 			System.out.println(e);
-		}*/
+		}
 		
-		new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.RANDOM, "SPF");
+	//	new TransponderMetric().start(BANDWIDTH_DISTRIBUTION.RANDOM, "SPF");
 	}
 }
