@@ -275,7 +275,7 @@ public class TransponderMetric{
 		}
 		
 		//default 500
-		for(int i = 80; i <= 80; i+=20){
+		for(int i = 20; i <= maxBandwidth; i+=20){
 			System.out.println("Starting Transponder Metric with max bandwidth: " + i);
 
 			pwUtil.println(i);
