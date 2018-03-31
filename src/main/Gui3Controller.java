@@ -446,9 +446,23 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Graph.fxml"));
 				Parent root = (Parent) fxmlLoader.load();
 				Stage stage = new Stage();
-				stage.setTitle("Simulator Results");
+				stage.setTitle("Simulator Results - Transponder");
 				stage.setScene(new Scene(root));
 				stage.show();
+				
+				FXMLLoader fxmlLoader2 = new FXMLLoader(getClass().getResource("Graph2.fxml"));
+				Parent root2 = (Parent) fxmlLoader2.load();
+				Stage stage2 = new Stage();
+				stage2.setTitle("Simulator Results - Drop");
+				stage2.setScene(new Scene(root2));
+				stage2.show();
+				
+				FXMLLoader fxmlLoader3 = new FXMLLoader(getClass().getResource("Graph3.fxml"));
+				Parent root3 = (Parent) fxmlLoader3.load();
+				Stage stage3 = new Stage();
+				stage3.setTitle("Simulator Results - Utilization");
+				stage3.setScene(new Scene(root3));
+				stage3.show();
 			} catch (Exception e) {
 
 			}
