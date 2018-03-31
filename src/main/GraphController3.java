@@ -105,41 +105,30 @@ public class GraphController3 implements Initializable {
 		XYChart.Series series4 = new XYChart.Series();
 		series4.setName(fileArray.get(39)[0]);
 		
-		for (int i = 0; i < fileArray.size(); i++) {
-			if (i >= 2 && i <= 12) {
-				series.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[1])));
-			}
-			else if (i >= 15 && i <= 25) {
-				series2.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[1])));
-			}
-			else if (i >= 28 && i <= 38) {
-				series3.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[1])));
-			}
-			else if (i >= 41) {
-				series4.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[1])));
+		//counter to keep track of position
+		int counter = 0;
+		//runs it 4 times for the diff bandwidth
+		for(int i = 0; i < 4; i++) {
+			//skip the titles
+			counter++;
+			counter++;
+			//for each of the values
+			for (int j = 0; j < 11; j++) {
+				if (i == 0) {
+					series.getData().add(new XYChart.Data(Double.parseDouble(fileArray.get(counter)[0]), Double.parseDouble(fileArray.get(counter)[1])));
+				}
+				else if (i == 1) {
+					series2.getData().add(new XYChart.Data(Double.parseDouble(fileArray.get(counter)[0]), Double.parseDouble(fileArray.get(counter)[1])));
+				}
+				else if (i == 2) {
+					series3.getData().add(new XYChart.Data(Double.parseDouble(fileArray.get(counter)[0]), Double.parseDouble(fileArray.get(counter)[1])));
+				}
+				else if (i == 3) {
+					series4.getData().add(new XYChart.Data(Double.parseDouble(fileArray.get(counter)[0]), Double.parseDouble(fileArray.get(counter)[1])));
+				}
+				counter++;
 			}
 		}
-		
-//		int counter = 0;
-//			for(int i = 0; i < 4; i++) {
-//				counter++;
-//				counter++;
-//				for (int j = 0; j < 11; j++) {
-//					if (i == 0) {
-//						series.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(counter)[0]), Integer.parseInt(fileArray.get(counter)[1])));
-//					}
-//					else if (i == 1) {
-//						series2.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(counter)[0]), Integer.parseInt(fileArray.get(counter)[1])));
-//					}
-//					else if (i == 2) {
-//						series3.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(counter)[0]), Integer.parseInt(fileArray.get(counter)[1])));
-//					}
-//					else if (i == 3) {
-//						series4.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(counter)[0]), Integer.parseInt(fileArray.get(counter)[1])));
-//					}
-//					counter++;
-//				}
-//			}
 
 	
 		resultsGraph.getData().addAll(series, series2, series3, series4);
