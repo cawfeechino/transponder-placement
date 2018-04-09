@@ -47,6 +47,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -72,9 +73,12 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			"random", "gaussian", "uniform");
 	ObservableList<String> routingMethodList = FXCollections.observableArrayList("--select a routing method--", "SPF",
 			"LUF", "MUF", "OPT", "MUX", "Hybrid");
+	ObservableList<String> dynSimConfirm = FXCollections.observableArrayList("Yes", "No");
 
 	private String trafficMethod;
 	private String routingMethod;
+	private String dynSimMaxTime;
+	private String dynSimChoice;
 	private StringBuilder console = new StringBuilder();
 
 	@FXML
@@ -412,8 +416,31 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		consoleText.setText(console.toString());
 		System.out.println(trafficMethod);
 	}
-
+	
 	@FXML
+    private ComboBox<String> dynSimConfBox;
+	
+	@FXML
+	private void dynSimConfChoice() {
+		dynSimChoice = dynSimConfBox.getValue().toString().equals("Yes") ? "yes" : "no";
+		System.out.println(dynSimChoice);
+	}
+
+    @FXML
+    private Label dynSimConfLabel;
+
+    @FXML
+    private Label dynSimTimeLabel;
+
+    @FXML
+    private TextField dynSimTimeText;
+    
+    @FXML
+    private void dynSimTimeRetrieve() {
+    	dynSimMaxTime = dynSimTimeText.getText();
+    }
+	
+    @FXML
 	private ComboBox<String> routingMethodBox;
 
 	@FXML
@@ -421,9 +448,23 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		if (!routingMethodBox.getValue().toString().equals("--select a routing method--")) {
 			routingMethod = routingMethodBox.getValue().toString();
 		}
+		if(routingMethodBox.getValue().toString().equals("SPF") || routingMethodBox.getValue().toString().equals("LUF") || routingMethodBox.getValue().toString().equals("MUF")) {
+			dynSimConfBox.setVisible(true);
+			dynSimConfLabel.setVisible(true);
+			dynSimTimeLabel.setVisible(true);
+			dynSimTimeText.setVisible(true);
+			dynSimChoice = dynSimConfBox.getValue().toString().toLowerCase();
+		}
+		if(!routingMethodBox.getValue().toString().equals("SPF") && !routingMethodBox.getValue().toString().equals("LUF") && !routingMethodBox.getValue().toString().equals("MUF")) {
+			dynSimConfBox.setVisible(false);
+			dynSimConfLabel.setVisible(false);
+			dynSimTimeLabel.setVisible(false);
+			dynSimTimeText.setVisible(false);
+			dynSimChoice = "no";
+		}
 		System.out.println(routingMethod);
 	}
-	
+    
 	@FXML
 	private Button runSimulator;
 
@@ -434,7 +475,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		Task<Void> simulator = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				String[] args = { trafficMethod.toUpperCase(), routingMethod };
+				
+				String[] args = { trafficMethod.toUpperCase(), routingMethod, dynSimChoice, dynSimMaxTime };
 				TransponderMetric.main(args);
 				return null;
 			}
@@ -463,6 +505,13 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				stage3.setTitle("Simulator Results - Utilization");
 				stage3.setScene(new Scene(root3));
 				stage3.show();
+				
+				FXMLLoader fxmlLoader4 = new FXMLLoader(getClass().getResource("Graph4.fxml"));
+				Parent root4 = (Parent) fxmlLoader4.load();
+				Stage stage4 = new Stage();
+				stage4.setTitle("Simulator Results - Drops per Second");
+				stage4.setScene(new Scene(root4));
+				stage4.show();
 			} catch (Exception e) {
 
 			}
@@ -485,7 +534,15 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		trafficMethodBox.getSelectionModel().select(0);
 		routingMethodBox.setItems(routingMethodList);
 		routingMethodBox.getSelectionModel().select(0);
-
+		dynSimConfBox.setItems(dynSimConfirm);
+		dynSimConfBox.getSelectionModel().select(0);
+		dynSimConfBox.setVisible(false);
+		dynSimConfLabel.setVisible(false);
+		dynSimTimeLabel.setVisible(false);
+		dynSimTimeText.setText("1000");
+		dynSimTimeText.setVisible(false);
+		dynSimMaxTime = "1000";
+		dynSimChoice = "yes";
 	}
 	
 	

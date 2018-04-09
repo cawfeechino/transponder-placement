@@ -94,9 +94,9 @@ public class GraphController3 implements Initializable {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setResultsGraph(File file) throws IOException {
 		ArrayList<String[]> fileArray = readableFile(file);
-		x.setLabel("Bandwidth");
-		y.setLabel("Utilization");
-		XYChart.Series series = new XYChart.Series();
+		x.setLabel("Second");
+		y.setLabel("Utilization (%)");
+		/*XYChart.Series series = new XYChart.Series();
 		series.setName(fileArray.get(0)[0]);
 		XYChart.Series series2 = new XYChart.Series();
 		series2.setName(fileArray.get(13)[0]);
@@ -129,8 +129,23 @@ public class GraphController3 implements Initializable {
 				counter++;
 			}
 		}
+		
+		resultsGraph.getData().addAll(series, series2, series3, series4);*/
+		
+		ArrayList<XYChart.Series> charts = new ArrayList<XYChart.Series>();
+		int count = -1;
+		for(int x = 0; x < fileArray.size(); x++) {
+			if(fileArray.get(x).length == 1) {
+				charts.add(new XYChart.Series<>());
+				count++;
+				charts.get(count).setName(fileArray.get(x)[0]);
+				x++;
+			}
+			else charts.get(count).getData().add(new XYChart.Data(Double.parseDouble(fileArray.get(x)[0]), Double.parseDouble(fileArray.get(x)[1])));
+		}
 
-	
-		resultsGraph.getData().addAll(series, series2, series3, series4);
+		
+		for(int y = 0; y < charts.size(); y++) resultsGraph.getData().add(charts.get(y));
+		
 	}
 }

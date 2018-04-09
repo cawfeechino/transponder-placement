@@ -57,7 +57,7 @@ public class GraphController2 implements Initializable {
 			
 			for(int i =0; i < csvFiles.length; i++) {
 				if(mostRecent.lastModified() < csvFiles[i].lastModified()) {
-					if (!csvFiles[i].getName().contains("utilization")) {
+					if (!csvFiles[i].getName().contains("utilization") && !csvFiles[i].getName().contains("dropSecond")) {
 						mostRecent = csvFiles[i];
 					}
 				}

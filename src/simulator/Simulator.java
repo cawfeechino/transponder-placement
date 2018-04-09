@@ -40,6 +40,8 @@ public class Simulator {
 
 	private List<VirtualRequest> requests; // List of virtual requests
 	private int maxTime = -1;
+	
+	private static int maxBandwidth = 0;
 
 	/**
 	 * Constructor reads adjacency matrix for specified topology type
@@ -52,6 +54,7 @@ public class Simulator {
 			throws IOException {
 		topologyT = TopologyUtil.readAdjacencyMatrix(type, computationalAvailability, bandwidthAvailability);
 		topology = topologyT;
+		maxBandwidth = bandwidthAvailability;
 	}
 
 	// --------------------------------------- ACCESSORS
@@ -68,6 +71,10 @@ public class Simulator {
 	
 	public int getMaxTime() {
 		return maxTime;
+	}
+	
+	public static int getMaxBandwidth() {
+		return maxBandwidth;
 	}
 
 	/**
@@ -322,18 +329,20 @@ public class Simulator {
 		int totalBandwidth = 0;
 		int totalDropped = 0;
 		if(requests.get(0).getStart() != -1) {
+		//	System.out.println(threads.size());
 			for(int x=0; x<threads.size(); x++) {
-				scheduler.schedule(threads.get(x), threads.get(x).getStart(), TimeUnit.SECONDS);
+				scheduler.schedule(threads.get(x), threads.get(x).getStart(), TimeUnit.MILLISECONDS);
 			}
 			scheduler.shutdown();
 			try {
-				int extraSecond = maxTime + 10;
+				int extraSecond = 20;
 	        	Thread.sleep(extraSecond * 1000);
 	        }
 	        catch(InterruptedException ex) 
 	        {
 	            ex.printStackTrace();
 	        }
+		//	System.out.println(DynamicHelper.count);
 			for(int y=0; y<threads.size(); y++) {
 				hops += threads.get(y).getHops();
 				if(threads.get(y).getStatus() == false) totalDropped++;
@@ -355,7 +364,7 @@ public class Simulator {
 		// transponderCapacity != 0)? 1:0));
 		// totalTranspondersODU += (transmittersNeeded + receiversNeeded);
 		// }
-		Double dropRatio = (double) totalDropped / numberOfRequests * 100;
+		Double dropRatio = (double) totalDropped / (numberOfRequests * 2) * 100;
 		results.add(totalTranspondersODU);
 		results.add(totalBandwidth);
 		results.add(hops);
