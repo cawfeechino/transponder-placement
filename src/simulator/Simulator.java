@@ -335,7 +335,7 @@ public class Simulator {
 			}
 			scheduler.shutdown();
 			try {
-				int extraSecond = 20;
+				int extraSecond = 30;
 	        	Thread.sleep(extraSecond * 1000);
 	        }
 	        catch(InterruptedException ex) 
