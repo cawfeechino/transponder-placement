@@ -695,6 +695,24 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							
 							map.addMapShape(cir);
 							earthquakes.put(point, cir); 
+							
+							for(LatLong ll : markers.keySet()) {
+								if(ll.distanceFrom(cir.getCenter()) <= (int) cir.getJSObject().getMember("radius") ) {
+									System.out.println("hit");
+									for(LatLong[] search : polylines.keySet()) {
+										for(LatLong distory : search) {
+											if(distory.getLatitude() == ll.getLatitude() && distory.getLongitude() == ll.getLongitude()) {
+												PolylineOptions po = ((PolylineOptions) polylines.get(search).getJSObject().getMember("getPolylineOptions")).strokeColor("red") ;
+												Polyline p = new Polyline(po);
+												 map.removeMapShape(polylines.get(search));		
+												 map.addMapShape(p);
+												 polylines.replace(search, p);
+											}
+										}
+									}
+									
+								}
+							}
 										
 						});
 						
