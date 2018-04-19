@@ -95,7 +95,7 @@ public class GraphController implements Initializable {
 	private void setResultsGraph(File file) throws IOException {
 		ArrayList<String[]> fileArray = readableFile(file);
 		x.setLabel("Bandwidth");
-		y.setLabel("Frequency");
+		y.setLabel("Transponders");
 		XYChart.Series series = new XYChart.Series();
 		series.setName(fileArray.get(0)[1]);
 		for(int i = 1; i < fileArray.size(); i++) {
