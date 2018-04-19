@@ -21,7 +21,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1240.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Gui3Controller">
    <children>
       <MenuBar>
         <menus>
@@ -158,6 +158,10 @@
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <ComboBox fx:id="routingMethodBox" layoutX="15.0" layoutY="14.0" onAction="#routingMethodChoice" prefWidth="250.0" />
+                                    <ComboBox fx:id="dynSimConfBox" layoutX="15.0" layoutY="89.0" onAction="#dynSimConfChoice" prefHeight="25.0" prefWidth="250.0" />
+                                    <Label fx:id="dynSimConfLabel" layoutX="15.0" layoutY="62.0" text="Dynamic Simulator?" />
+                                    <Label fx:id="dynSimTimeLabel" layoutX="15.0" layoutY="142.0" prefHeight="17.0" prefWidth="90.0" text="Max Time" />
+                                    <TextField fx:id="dynSimTimeText" layoutX="17.0" layoutY="173.0" onAction="#dynSimTimeRetrieve" prefHeight="25.0" prefWidth="247.0" />
                                  </children>
                               </AnchorPane>
                           </content>

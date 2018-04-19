@@ -28,6 +28,10 @@ public class PhysicalLink {
 		bandwidthAvailability -= bandwidth;
 	}
 	
+	public void increaseBandwidthAvail(int bandwidth) {
+		bandwidthAvailability += bandwidth;
+	}
+	
 	public void resetTransponderBandwidth(){
 		//System.out.println("Before: " + transponderBandwidth1 + " " + transponderBandwidth2);
 		transponderBandwidth1 = 0;
@@ -38,6 +42,11 @@ public class PhysicalLink {
 	public int getTransponders(int capacity){
 		return (((transponderBandwidth1 / capacity) + ((transponderBandwidth1 % capacity != 0)? 1:0)) * 2)
 			 + (((transponderBandwidth2 / capacity) + ((transponderBandwidth2 % capacity != 0)? 1:0)) * 2);
+	}
+	
+	public int getBandwidthUsed() {
+		int total = transponderBandwidth1 + transponderBandwidth2;
+		return total;
 	}
 	
 	public int getLinkDistance(){

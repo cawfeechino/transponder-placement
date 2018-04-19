@@ -15,7 +15,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.text.Text;
 
-public class GraphController implements Initializable {
+public class GraphController2 implements Initializable {
 	private StringBuilder resultsText = new StringBuilder();
 	private Scanner scanner;
 	
@@ -95,11 +95,11 @@ public class GraphController implements Initializable {
 	private void setResultsGraph(File file) throws IOException {
 		ArrayList<String[]> fileArray = readableFile(file);
 		x.setLabel("Bandwidth");
-		y.setLabel("Transponders");
+		y.setLabel("Drop Percentage");
 		XYChart.Series series = new XYChart.Series();
-		series.setName(fileArray.get(0)[1]);
+		series.setName(fileArray.get(0)[5]);
 		for(int i = 1; i < fileArray.size(); i++) {
-			series.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[1])));
+			series.getData().add(new XYChart.Data(Integer.parseInt(fileArray.get(i)[0]), Integer.parseInt(fileArray.get(i)[5])));
 			
 		}
 		resultsGraph.getData().addAll(series);
