@@ -398,6 +398,8 @@ public class Simulator {
 		results.add(totalTranspondersOTN);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 
@@ -454,6 +456,8 @@ public class Simulator {
 		results.add(totalTranspondersMUX);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 
@@ -517,6 +521,8 @@ public class Simulator {
 		results.add(totalTransponders);
 		results.add(totalBandwidth);
 		results.add(hops);
+		results.add(-1);
+		results.add(-1);
 		return results;
 	}
 

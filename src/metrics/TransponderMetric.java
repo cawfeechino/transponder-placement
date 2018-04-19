@@ -39,13 +39,13 @@ public class TransponderMetric{
 		//getResultsHypercube16(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP);		
 	//	getResults(BANDWIDTH_DISTRIBUTION.RANDOM,EMBEDDING_METHOD.BACKUP, topology, threshold, false);
 	//	 getResultsTestTwo(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, String dynSimConfirm, String dynSimMaxTime, int hybridThreshold, boolean customRequest)
-		getResultsTestTwo(distribution, EMBEDDING_METHOD.BACKUP, NetworkTopology.MESH8, routingType, 200, 100, dynSimConfirm, dynSimMaxTime, 50, false);
+		getResults(distribution, EMBEDDING_METHOD.BACKUP, NetworkTopology.MESH8, routingType, 200, 100, dynSimConfirm, dynSimMaxTime, 50, false);
 	//	simulator.getTranspondersODU(100,i, distributionType.name().toLowerCase(), 0, (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true, requests);
 
 	}
 	
-	
-	public static void getResultsTestTwo(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, String dynSimConfirm, String dynSimMaxTime, int hybridThreshold, boolean customRequest) throws IOException{
+
+	public static void getResults(BANDWIDTH_DISTRIBUTION distributionType, EMBEDDING_METHOD method, NetworkTopology topology, String routingType, int maxBandwidth, int transponderCapacity, String dynSimConfirm, String dynSimMaxTime, int hybridThreshold, boolean customRequest) throws IOException{
 		String PROJECT_DIRECTORY =  new File(".").getCanonicalPath();
 		String RESULTS_DIRECTORY = "/src/results/";
 		String fileName = "_transponder_new_" + distributionType.name().toLowerCase() + "_" + routingType.toLowerCase() + "_";
