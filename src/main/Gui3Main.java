@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class Gui3Main extends Application {
 	private static Stage primaryStage;
-	
+
 	@SuppressWarnings("static-access")
 	@Override
 	public void start(Stage primaryStage) throws IOException {
@@ -25,6 +25,7 @@ public class Gui3Main extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
+
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -33,6 +34,5 @@ public class Gui3Main extends Application {
 	public static Stage getPrimaryStage() {
 		return primaryStage;
 	}
-	
 	
 }
