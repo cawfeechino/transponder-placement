@@ -129,7 +129,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private final String us = "US";
 	
 	//for default location
-	private ArrayList<LatLong> locations;
+	private ArrayList<LatLong> locations, connection;
 	
 	//for default connections
 	private ArrayList<MapNode> connections;
@@ -153,7 +153,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	//default path for nsfnet topology
 	private String path;
 	
-	private HashMap <LatLong, Polyline> connection;
 		
 	@Override
 	public void mapInitialized() {
@@ -189,7 +188,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		polylines = new HashMap<>();
 		markers = new HashMap<>();
 		earthquakes = new HashMap<>();
-		connection = new HashMap<>();
+		connection = new ArrayList<>();
 		
 		
 		try {
@@ -738,22 +737,21 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							markerMenu.getItems().get(2).setOnAction(value ->{
 								
 								if(markerMenu.getItems().get(2).getText().equals("Start Connection")) {
-									PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5);
-									Polyline polyline = new Polyline(polylineOptions);
-									connection.put(point, polyline);
+									connection.add(point);
 									markerMenu.getItems().get(2).setText("End Connection");
 									
 								}else {
 									markerMenu.getItems().get(2).setText("Start Connection");
-									LatLong start = connection.keySet().iterator().next();
+									LatLong start = connection.get(0);
 									LatLong[] key = new LatLong[] {start, point};
 									
-									if(!connection.keySet().iterator().next().equals(point)) {
-										Polyline p = (Polyline) connection.values().toArray()[0];
-										p.getPath().setAt(1, point);
-										map.addMapShape(p);
+									if(!connection.get(0).equals(point)) {
+										PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5).path(new MVCArray(key));
+										Polyline polyline = new Polyline(polylineOptions);
+						
+										map.addMapShape(polyline);
 										
-										polylines.put(key, p);
+										polylines.put(key, polyline);
 										connections.add(new MapNode(start, point, start.distanceFrom(point)/1000));
 										connection.clear();
 									}else {
