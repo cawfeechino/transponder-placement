@@ -288,8 +288,6 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	
 					@Override
 					public void handle(ContextMenuEvent event) {
-//						mapMenu.setAnchorX(event.getSceneX());
-//						mapMenu.setAnchorY(event.getSceneY());
 						
 						addMarker.setOnAction(new EventHandler<ActionEvent>() {
 							
@@ -332,14 +330,15 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								
 								
 								//if marker falls in radius of earthquake
+								
 								for(LatLong ll : markers.keySet()) {
 									if(ll.distanceFrom(cir.getCenter()) <= (int) cir.getJSObject().getMember("radius") ) {
-										System.out.println("hit");
 										for(LatLong[] search : polylines.keySet()) {
 											for(LatLong distory : search) {
 												if(distory.getLatitude() == ll.getLatitude() && distory.getLongitude() == ll.getLongitude()) {
-													PolylineOptions po = ((PolylineOptions) polylines.get(search).getJSObject().getMember("getPolylineOptions")).strokeColor("red") ;
-													Polyline p = new Polyline(po);
+													PolylineOptions options = new PolylineOptions().strokeColor("red").strokeWeight(2.5).path(polylines.get(search).getPath());
+													Polyline p = new Polyline(options);
+													
 													 map.removeMapShape(polylines.get(search));		
 													 map.addMapShape(p);
 													 polylines.replace(search, p);
@@ -352,7 +351,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							}
 						});
 						
-						mapMenu.show(gmap, event.getSceneX(), event.getScreenY());
+						
+						mapMenu.show(gmap, event.getScreenX(), event.getScreenY());
 					}
 				});
 				  
@@ -746,10 +746,16 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 									LatLong[] key = new LatLong[] {start, point};
 									
 									if(!connection.get(0).equals(point)) {
-										PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5).path(new MVCArray(key));
+										PolylineOptions polylineOptions = new PolylineOptions().strokeColor("black").strokeWeight(2.5);
 										Polyline polyline = new Polyline(polylineOptions);
+										MVCArray pair = new MVCArray();
+										pair.setAt(0, key[0]);
+										pair.setAt(1, key[1]);
 						
+										polyline.setPath(pair);
+										
 										map.addMapShape(polyline);
+										polyline.getJSObject().setMember("getPolylineOptions", polylineOptions);
 										
 										polylines.put(key, polyline);
 										connections.add(new MapNode(start, point, start.distanceFrom(point)/1000));
@@ -762,7 +768,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 						
 							});	
 						
-						markerMenu.show(gmap, event.getSceneX()+40, event.getSceneY()+100);
+						markerMenu.show(gmap, event.getScreenX(), event.getScreenY());
 					}
 				});
 			}
