@@ -22,6 +22,7 @@ import com.lynden.gmapsfx.shapes.PolylineOptions;
 import com.lynden.gmapsfx.util.MarkerImageFactory;
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
+import java.applet.Applet;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,6 +48,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -148,7 +150,8 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 	private GoogleMap map;
 	
 	//one drop down when user right clicks on map another when click on marker
-	private ContextMenu markerMenu , mapMenu;
+	private ContextMenu markerMenu , mapMenu,earthquakmenu;
+	
 	
 	//default path for nsfnet topology
 	private String path;
@@ -214,6 +217,11 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 		MenuItem remove = new MenuItem("Remove");
 		MenuItem connection = new MenuItem("Start Connection");
 		markerMenu.getItems().addAll(addEarthQuake0, remove, connection);
+		
+		earthquakmenu = new ContextMenu();
+		MenuItem removeE = new MenuItem("Remove");
+		earthquakmenu.getItems().add(removeE);
+		
 		
 		upload.setOnAction(e->{
 			FileChooser chooser = new FileChooser();
@@ -283,7 +291,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 				LatLong ll = arg0.getLatLong();
 				
 				markerMenu.hide();
-			
+				earthquakmenu.hide();
 				gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
 	
 					@Override
@@ -321,13 +329,35 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 								results.ifPresent(distance -> {
 									co.radius(Double.parseDouble(distance) * 1000.0);
 								});
+								
 								Circle cir = new Circle(co);
 								
 								earthquakes.put(ll, cir);
 							
 								map.addMapShape(cir);
 								
+								map.addUIEventHandler(cir, UIEventType.rightclick, h->{
+									
+									mapMenu.hide();
+									markerMenu.hide();
+									
+									
+									gmap.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+										@Override
+										public void handle(ContextMenuEvent event) {
+											
+											earthquakmenu.getItems().get(0).setOnAction(action ->{
+												map.removeMapShape(cir);
+												earthquakes.remove(ll);
+											});
+											earthquakmenu.show(gmap, event.getScreenX(), event.getScreenY());
+										}
+										
+									});
 								
+									
+								});
 								
 								//if marker falls in radius of earthquake
 								
@@ -375,6 +405,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 			public void handle(GMapMouseEvent arg) {
 				mapMenu.hide();
 				markerMenu.hide();
+				earthquakmenu.hide();
 				infoWindow.close();	
 			}
 		});
@@ -670,6 +701,7 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 					@Override
 					public void handle(ContextMenuEvent event) {
 						mapMenu.hide();
+						earthquakmenu.hide();
 						marker.setAnimation(Animation.DROP);		
 						
 						
@@ -722,14 +754,24 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 							@Override
 							public void handle(ActionEvent event) {
 								map.removeMarker(marker);
+								markers.remove(point);
 								//if a marker is deleted so does its links 
+								
+								ArrayList<LatLong[]> toRemove = new ArrayList<>();
 								for(LatLong[] search : polylines.keySet()) {
 									for(LatLong distory : search) {
 										if(distory.getLatitude() == point.getLatitude() && distory.getLongitude() == point.getLongitude()) {
-											 map.removeMapShape(polylines.get(search));		
+											 map.removeMapShape(polylines.get(search));	
+											 toRemove.add(search);
 										}
 									}
 								}
+								
+								for(LatLong[] line : toRemove) {
+									polylines.remove(line);
+								}
+								
+								
 							}
 						});
 						
