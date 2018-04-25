@@ -350,6 +350,23 @@ public class Gui3Controller implements Initializable, MapComponentInitializedLis
 											earthquakmenu.getItems().get(0).setOnAction(action ->{
 												map.removeMapShape(cir);
 												earthquakes.remove(ll);
+												for(LatLong ll : markers.keySet()) {
+													if(ll.distanceFrom(cir.getCenter()) <= (int) cir.getJSObject().getMember("radius") ) {
+														for(LatLong[] search : polylines.keySet()) {
+															for(LatLong distory : search) {
+																if(distory.getLatitude() == ll.getLatitude() && distory.getLongitude() == ll.getLongitude()) {
+																	PolylineOptions options = new PolylineOptions().strokeColor("black").strokeWeight(2.5).path(polylines.get(search).getPath());
+																	Polyline p = new Polyline(options);
+																	
+																	 map.removeMapShape(polylines.get(search));		
+																	 map.addMapShape(p);
+																	 polylines.replace(search, p);
+																}
+															}
+														}
+														
+													}
+												}
 											});
 											earthquakmenu.show(gmap, event.getScreenX(), event.getScreenY());
 										}
